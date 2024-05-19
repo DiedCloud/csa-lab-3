@@ -1,0 +1,31 @@
+<mxfile host="app.diagrams.net" modified="2024-05-19T18:13:53.006Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="vDeLq9avJU8iQ-KiEc99" version="24.4.4" type="device">
+  <diagram name="Страница — 1" id="-2dhWkgFpOOAvYboyMm9">
+    <mxGraphModel dx="1434" dy="772" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-1" value="DataPath" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="555" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-2" value="Return&lt;div&gt;stack&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="120" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-3" value="Commands&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;memory&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="120" width="120" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-4" value="mP" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="120" width="120" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-5" value="mPc" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="380" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-6" value="decoder" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="460" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Bh3pZPlAoXe7MRYz6FHz-8" value="Programm&lt;div&gt;counter&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="380" width="80" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
