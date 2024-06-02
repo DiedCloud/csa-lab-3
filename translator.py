@@ -1,6 +1,6 @@
 import sys
 
-from isa import Opcode, Term, write_code
+from isa import Opcode, Instruction, write_data_and_code
 
 
 def term2instructions(symbol):
@@ -27,6 +27,81 @@ def term2instructions(symbol):
     }.get(symbol, None)
 
 
+def check_balance_in_terms(terms: list[str]):
+    # но вообще надо проверять на "правильную скобочную последовательность"
+
+    deep = 0
+    for term in terms:
+        if term == "begin":
+            deep += 1
+        if term == "until":
+            deep -= 1
+        assert deep >= 0, "Unbalanced begin-until!"
+        assert deep <= 1, "Sub-functions not allowed"
+    assert deep == 0, "Unbalanced begin-until!"
+
+    deep = 0
+    for term in terms:
+        if term == "if":
+            deep += 1
+        if term == "then":
+            deep -= 1
+        assert deep >= 0, "Unbalanced if-then!"
+    assert deep == 0, "Unbalanced if-then!"
+
+    deep = 0
+    for term in terms:
+        if term == ":":
+            deep += 1
+        if term == ";":
+            deep -= 1
+        assert deep >= 0, "Unbalanced :;!"
+    assert deep == 0, "Unbalanced :;!"
+
+
+def remove_brackets(terms: list[str]):
+    # убираем то, что в скобах (например семантика функции)
+    new_terms = []
+    deep = 0
+    for term_num, term in enumerate(terms):
+        if term == "(":
+            deep += 1
+        if term == ")":
+            deep -= 1
+        assert deep >= 0, "Unbalanced ()!"
+        if deep == 0:
+            new_terms.append(term)
+    assert deep == 0, "Unbalanced ()!"
+    return new_terms
+
+
+def split_with_saving_string_literals(text: str):
+    string_literals = []
+    text_prep = [text]
+    while isinstance(text_prep[-1], str) and text_prep[-1].find(".\""):
+        left = text_prep[-1].find(".\"")
+        right = text_prep[-1].find("\"", left+2)
+        if left != -1 and right != -1:
+            string_literals.append(text_prep[-1][left:right+1])
+            raw = text_prep.pop()
+            text_prep.append(raw[0:left].split())
+            text_prep.append(raw[right+1::])
+        else:
+            text_prep.append(text_prep.pop().split())
+    if isinstance(text_prep[-1], str):
+        raw = text_prep.pop()
+        text_prep.append(raw.split())
+
+    terms = []
+    i = 0
+    for i in range(len(text_prep)-1):
+        terms += text_prep[i]
+        terms.append(string_literals[i])
+    terms += text_prep[-1]
+
+    return terms
+
+
 def text2terms(text):
     """Трансляция текста в последовательность операторов языка (токенов).
 
@@ -35,77 +110,130 @@ def text2terms(text):
     - отсеивание всех незначимых символов (считаются комментариями);
     - проверка формальной корректности программы (парность оператора цикла).
     """
-    terms = []
-    for line_num, line in enumerate(text.split(), 1):
-        # TODO '()'
-        terms.append(Term(line_num, line))
-
-    deep = 0
-    for term in terms:
-        if term.symbol == "begin":
-            deep += 1
-        if term.symbol == "until":
-            deep -= 1
-        assert deep >= 0, "Unbalanced begin-until!"
-    assert deep == 0, "Unbalanced begin-until!"
-
-    deep = 0
-    for term in terms:
-        if term.symbol == "if":
-            deep += 1
-        if term.symbol == "then":
-            deep -= 1
-        assert deep >= 0, "Unbalanced if-then!"
-    assert deep == 0, "Unbalanced if-then!"
-
+    terms = split_with_saving_string_literals(text)
+    check_balance_in_terms(terms)
+    terms = remove_brackets(terms)
     return terms
 
 
+def find_variables(terms: list[str]):
+    """Находим токены, определяющие переменные, и даем им место в памяти"""
+    variables: dict[str, int] = dict()
+    last_free_address = 0
+
+    # Получается формально ничего не мешает объявить переменную где угодно. Но она, очевидно, глобальная
+    for i in range(len(terms)-3):
+        if terms[i] == "variable":
+            variables[terms[i+1]] = last_free_address
+            last_free_address += 1
+            if terms[i+3] == "allot":
+                last_free_address += int(terms[i+2])
+
+    if terms[-2] == "variable":
+        variables[terms[-1]] = last_free_address
+        last_free_address += 1
+
+    return variables, last_free_address
+
+
+def find_functions(terms: list[str]):
+    """Определяем номера токенов начал функций"""
+    functions: dict[str, tuple[int, int]] = dict()
+
+    begin = 0
+    for i in range(len(terms)-1):
+        if terms[i] == ":":
+            begin = i + 1 # Сразу в начало кода функции. (скобки убраны из токенов)
+        if terms[i] == ";":
+            functions[terms[begin]] = (begin + 1, i + 1) # Сразу в после кода функции, т.к. ; это инструкция ret
+
+    return functions
+
+
 def translate(text):
-    """Трансляция текста программы в машинный код.
-
-    Выполняется в два этапа:
-
-    1. Трансляция текста в последовательность операторов языка (токенов).
-
-    2. Генерация машинного кода.
-
-        - Прямое отображение части операторов в машинный код.
-
-        - Отображение операторов цикла в инструкции перехода с учётом
-    вложенности и адресации инструкций. Подробнее см. в документации к
-    `isa.Opcode`.
-
-    """
     terms = text2terms(text)
+    variables, last_free_address = find_variables(terms)
+    functions = find_functions(terms)
+
+    data: list[int | str] = [0] * last_free_address # инициализируем выделенную память
+    code: list[Instruction] = []
 
     # Транслируем термы в машинный код.
-    code = []
-    jmp_stack = []
-    for pc, term in enumerate(terms):
-        if term.symbol == "begin":
+    terms_to_instruction_lists: list[list[Instruction]] = []
+    jmp_stack: list[int] = []
+    for term_num in range(len(terms)):
+
+        if terms[term_num] == "begin":
             # оставляем placeholder, который будет заменён в конце цикла
-            code.append(None)
-            jmp_stack.append(pc)
-        elif term.symbol == "until":
+            terms_to_instruction_lists.append([None])
+            jmp_stack.append(len(terms_to_instruction_lists)-1)
+        elif terms[term_num] == "until":
             # формируем цикл с началом из jmp_stack
             begin_pc = jmp_stack.pop()
-            begin = {"index": pc, "opcode": Opcode.JZ, "arg": pc + 1, "term": terms[begin_pc]}
-            end = {"index": pc, "opcode": Opcode.JMP, "arg": begin_pc, "term": term}
-            code[begin_pc] = begin
-            code.append(end)
-        elif term.symbol == "if":
-            pass
-        elif term.symbol == "then":
-            pass
+            begin = Instruction(Opcode.NOP)
+            end = Instruction(Opcode.JZ, begin_pc)
+            terms_to_instruction_lists[begin_pc] = [begin]
+            terms_to_instruction_lists.append([end])
+
+        elif terms[term_num] == "if":
+            terms_to_instruction_lists.append([None])
+            jmp_stack.append(len(terms_to_instruction_lists)-1)
+        elif terms[term_num] == "then":
+            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JZ, len(terms_to_instruction_lists))]
+            terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
+
+        elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций.
+            opcodes: list[Opcode] = term2instructions(terms[term_num])
+            instructions: list[Instruction] = []
+            for op in opcodes:
+                if op == Opcode.LIT: # ПЛОХО. Но аргументы имеют только LIT и прыжки, а в ответе может быть только LIT, которому нужна 1
+                    instructions.append(Instruction(op, arg=1))
+                else:
+                    instructions.append(Instruction(op))
+            terms_to_instruction_lists.append(instructions)
+
+        elif terms[term_num] in variables:
+            # обращение к переменной - положить ассоциированный адрес на вершину стека
+            terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=variables[terms[term_num]])])
+
+        elif terms[term_num] == ":":  # если пришли к определению функции, то её надо перепрыгнуть
+            terms_to_instruction_lists.append([Instruction(Opcode.JMP, arg=functions[terms[term_num+1]][1])])
+        elif terms[term_num] in functions:
+            terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=functions[terms[term_num]][0])])
+
+        elif terms[term_num][0:2:] == ".\"" and terms[term_num][-1] == "\"":
+            data += [char for char in terms[term_num][2:-1:]]
+            terms_to_instruction_lists.append([
+                Instruction(Opcode.LIT, arg=len(data)-len(terms[term_num][2:-1:])),
+
+                Instruction(Opcode.LIT, arg=0), # TODO порт вывода
+                Instruction(Opcode.OVER),
+                Instruction(Opcode.LOAD),
+                Instruction(Opcode.STORE),
+
+                Instruction(Opcode.LIT, arg=1),
+                Instruction(Opcode.ADD), # инкремент адреса памяти
+
+                Instruction(Opcode.DUP),
+                Instruction(Opcode.SUB), # <
+                Instruction(Opcode.ISNEG),
+                Instruction(Opcode.JZ, arg=term_num+1) # term_num+1 т.к. цикл начинается на второй инструкции из этих
+            ])
         else:
-            inst = term2instructions(term.symbol)
-            # Обработка тривиально отображаемых операций.
-            # code.append({"index": pc, "opcode": symbol2opcode(term.symbol), "term": term})
+            pass
+
+    offset = 0
+    print(terms_to_instruction_lists)
+    for l in terms_to_instruction_lists:
+        print(l)
+        if l[0].opcode == Opcode.CALL: # токен вызова функции в текущей реализации всегда одна инструкция CALL
+            l[0].arg += offset  # смещение надо применить к адресам вызова функций
+        code += l
+        offset += len(l) - 1 # Набор инструкций дины 1 - окей. Но если больше то возникает смещение
 
     # Добавляем инструкцию остановки процессора в конец программы.
-    code.append({"index": len(code), "opcode": Opcode.HALT})
-    return code
+    code.append(Instruction(Opcode.HALT))
+    return data, code
 
 
 def main(source, target):
@@ -113,13 +241,13 @@ def main(source, target):
     with open(source, encoding="utf-8") as f:
         source = f.read()
 
-    code = translate(source)
+    data, code = translate(source)
 
-    write_code(target, code)
+    write_data_and_code(target, data, code)
     print("source LoC:", len(source.split("\n")), "code instr:", len(code))
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
-    _, source, target = sys.argv
-    main(source, target)
+    # assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
+    # _, source, target = sys.argv
+    main("algorithms/hello_world.fth", "hw.json")

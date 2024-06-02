@@ -69,23 +69,39 @@ class Instruction:
         return self.__str__()
 
 
-def write_code(filename, code):
+def write_data_and_code(filename, data: list[int | str], code: list[Instruction]):
     with open(filename, "w", encoding="utf-8") as file:
+        file.write("{\n\t\"data\":")
+        for d in range(len(data)):
+            data[d] = data[d] if isinstance(data[d], int) else "\"" + str(data[d]) + "\""
+        file.write(" [\n\t\t" + ",\n\t\t".join(data) + "\n\t]")
+
+        file.write(",\n\t\"code\":")
         buf = []
         for instr in code:
-            buf.append(json.dumps(instr))
-        file.write("[\n" + ",\n ".join(buf) + "\n]")
+            a = instr.arg if isinstance(instr.arg, int) else "\"" + str(instr.arg) + "\""
+            buf.append(
+                "\t\t{" +
+                f"\"opcode\": \"{instr.opcode}\","
+                f" \"arg\": {a}" +
+                "}")
+        file.write(" [\n" + ",\n ".join(buf) + "\n\t]")
 
+        file.write("\n}")
 
-def read_code(filename):
+def read_data_and_code(filename):
     with open(filename, encoding="utf-8") as file:
-        file_code = json.loads(file.read())
+        file = json.loads(file.read())
+
+    data = []
+    for d in file["data"]:
+        data.append(d)
 
     program_code = []
-    for instr in file_code:
+    for instr in file["code"]:
         program_code.append(Instruction(
             Opcode(instr["opcode"]),
             instr["arg"] if "arg" in instr else None
         ))
 
-    return program_code
+    return data, program_code

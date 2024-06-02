@@ -2,7 +2,7 @@ import logging
 import sys
 from enum import Enum
 
-from isa import Opcode, read_code, Instruction
+from isa import Opcode, read_data_and_code, Instruction
 
 
 class Signal(None, Enum):
@@ -509,7 +509,7 @@ class ControlUnit:
 
 
 def main(code_file, input_file):
-    code = read_code(code_file)
+    code = read_data_and_code(code_file)
     with open(input_file, encoding="utf-8") as file:
         input_text = file.read()
         input_token = []
