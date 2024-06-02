@@ -65,6 +65,7 @@ class ALU:
         Signal.SubALU: lambda a, b: a-b,
         Signal.AndALU: lambda a, b: a and b,
         Signal.OrALU: lambda a, b: a or b,
+        Signal.NegALU: lambda _, b: -b,
         Signal.ISNEG: lambda _, b: b < 0,
         Signal.InvertRightALU: lambda _, b: -1 if b == 0 else 0,
     }
@@ -377,6 +378,7 @@ class ControlUnit:
         self.return_stack_pointer: int = 0
         self._tick: int = 0
         self.microprogram_counter: int = 0
+        self.prev_mpc: int = 0
 
     def tick(self):
         self._tick += 1
@@ -468,44 +470,43 @@ class ControlUnit:
             while True:
                 if self.microprogram_counter == 0:
                     instr_counter += 1
-                    pass # TODO Новая инструкция. В лог.
+                    logging.debug(f"Instruction #{instr_counter}")
 
+                self.prev_mpc = self.microprogram_counter
                 self.decode_and_execute_signals(self.microprogram[self.microprogram_counter])
                 self.tick()
-                logging.debug("%s", self) #?
+                logging.debug("%s", self.__repr__())
 
                 if instr_counter >= limit:
                     logging.warning("Limit exceeded!")
                     break
         except EOFError:
             logging.warning("Input buffer is empty!")
-        except StopIteration:
-            pass
+        except HLT:
+            logging.info("Program has ended with halt")
 
         logging.info("output_buffer: %s", repr("".join(self.data_path.output_buffer)))
         return "".join(self.data_path.output_buffer), instr_counter, self.current_tick()
 
     def __repr__(self):
-        state_repr = "TICK: {:3} PC: {:3} ADDR: {:3} MEM_OUT: {} ACC: {}".format(
-            self._tick,
-            self.program_counter,
-            self.data_path.data_address,
-            self.data_path.data_memory[self.data_path.data_address],
-            self.data_path.acc,
+        state_repr = (
+            f"TICK: {self._tick:3}"
+            f" PC: {self.program_counter:3}"
+            f" PREV_MPC: {self.prev_mpc}"
+            f" CUR_MPC: {self.microprogram_counter}"
+            f" TOS: {self.data_path.tos}"
+            f" TOS1: {self.data_path.tos1}"
+            f" SP: {self.data_path.stack_pointer}"
         )
 
         instr = self.program[self.program_counter]
-        opcode = instr["opcode"]
+        opcode = instr.opcode
         instr_repr = str(opcode)
 
-        if "arg" in instr:
-            instr_repr += " {}".format(instr["arg"])
+        if instr.arg is not None:
+            instr_repr += f" {instr.arg}"
 
-        if "term" in instr:
-            term = instr["term"]
-            instr_repr += "  ('{}'@{}:{})".format(term.symbol, term.line, term.pos)
-
-        return "{} \t{}".format(state_repr, instr_repr)
+        return f"{state_repr}\n{instr_repr}"
 
 
 def main(code_file, input_file):
