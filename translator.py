@@ -145,7 +145,7 @@ def find_functions(terms: list[str]):
         if terms[i] == ":":
             begin = i + 1 # Сразу в начало кода функции. (скобки убраны из токенов)
         if terms[i] == ";":
-            functions[terms[begin]] = (begin + 1, i + 1) # Сразу в после кода функции, т.к. ; это инструкция ret
+            functions[terms[begin]] = (begin, i + 1) # Сразу в после кода функции, т.к. ; это инструкция ret
 
     return functions
 
@@ -199,7 +199,8 @@ def translate(text):
         elif terms[term_num] == ":":  # если пришли к определению функции, то её надо перепрыгнуть
             terms_to_instruction_lists.append([Instruction(Opcode.JMP, arg=functions[terms[term_num+1]][1])])
         elif terms[term_num] in functions:
-            terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=functions[terms[term_num]][0])])
+            if terms[term_num-1] != ":":
+                terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=functions[terms[term_num]][0])])
 
         elif terms[term_num][0:2:] == ".\"" and terms[term_num][-1] == "\"":
             data += [char for char in terms[term_num][2:-1:]]
@@ -217,19 +218,21 @@ def translate(text):
                 Instruction(Opcode.DUP),
                 Instruction(Opcode.SUB), # <
                 Instruction(Opcode.ISNEG),
-                Instruction(Opcode.JZ, arg=term_num+1) # term_num+1 т.к. цикл начинается на второй инструкции из этих
+                Instruction(Opcode.JZ, arg=term_num) # term_num+1 т.к. цикл начинается на второй инструкции из этих
             ])
         else:
             pass
 
-    offset = 0
+    cur_pc = 0
     print(terms_to_instruction_lists)
-    for l in terms_to_instruction_lists:
-        print(l)
-        if l[0].opcode == Opcode.CALL: # токен вызова функции в текущей реализации всегда одна инструкция CALL
-            l[0].arg += offset  # смещение надо применить к адресам вызова функций
-        code += l
-        offset += len(l) - 1 # Набор инструкций дины 1 - окей. Но если больше то возникает смещение
+    for term_num in range(len(terms_to_instruction_lists)):
+        i = term_num + 1
+        while i < len(terms_to_instruction_lists):
+            if terms_to_instruction_lists[i][0].arg == term_num: # если есть вызовы с таким номером токена
+                terms_to_instruction_lists[i][0].arg = cur_pc  # то поставить им правильный адрес
+            i += 1
+        code += terms_to_instruction_lists[term_num]
+        cur_pc += len(terms_to_instruction_lists[term_num])
 
     # Добавляем инструкцию остановки процессора в конец программы.
     code.append(Instruction(Opcode.HALT))
@@ -250,4 +253,4 @@ def main(source, target):
 if __name__ == "__main__":
     # assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
     # _, source, target = sys.argv
-    main("algorithms/hello_world.fth", "hw.json")
+    main("algorithms/prob1.fth", "prob1.json")
