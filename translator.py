@@ -102,7 +102,7 @@ def split_with_saving_string_literals(text: str):
     return terms
 
 
-def text2terms(text):
+def text2terms(text) -> list[str]:
     """Трансляция текста в последовательность операторов языка (токенов).
 
     Включает в себя:
@@ -136,6 +136,12 @@ def find_variables(terms: list[str]):
     return variables, last_free_address
 
 
+def remove_term_var(terms: list[str]):
+    while "variable" in terms:
+        terms.remove("variable")
+    return terms
+
+
 def find_functions(terms: list[str]):
     """Определяем номера токенов начал функций"""
     functions: dict[str, tuple[int, int]] = dict()
@@ -153,6 +159,7 @@ def find_functions(terms: list[str]):
 def translate(text):
     terms = text2terms(text)
     variables, last_free_address = find_variables(terms)
+    terms = remove_term_var(terms)
     functions = find_functions(terms)
 
     data: list[int | str] = [0] * last_free_address # инициализируем выделенную память
@@ -220,6 +227,8 @@ def translate(text):
                 Instruction(Opcode.ISNEG),
                 Instruction(Opcode.JZ, arg=term_num) # term_num+1 т.к. цикл начинается на второй инструкции из этих
             ])
+        elif terms[term_num].isdigit() or terms[term_num][0] == '-' and terms[term_num][1::].isdigit():
+            terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
         else:
             pass
 
