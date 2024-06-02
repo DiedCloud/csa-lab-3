@@ -7,7 +7,7 @@ def term2instructions(symbol):
     """Отображение операторов исходного кода в коды операций."""
     return {
         "+": [Opcode.ADD],
-        "-": [Opcode.NEG, Opcode.ADD],
+        "-": [Opcode.SUB],
         ";": [Opcode.RET],
         "dup": [Opcode.DUP],
         "over": [Opcode.OVER],
@@ -16,12 +16,12 @@ def term2instructions(symbol):
         ".": [Opcode.LIT, Opcode.STORE],
         "!": [Opcode.STORE],
         "@": [Opcode.LOAD],
-        "<": [Opcode.NEG, Opcode.ADD, Opcode.ISNEG],
-        ">": [Opcode.NEG, Opcode.ADD, Opcode.NEG, Opcode.ISNEG],
-        "=": [Opcode.NEG, Opcode.ADD, Opcode.NOT],
+        "<": [Opcode.SUB, Opcode.ISNEG],
+        ">": [Opcode.SUB, Opcode.NEG, Opcode.ISNEG],
+        "=": [Opcode.SUB, Opcode.INV],
         "or": [Opcode.OR],
         "and": [Opcode.AND],
-        "invert": [Opcode.NOT],
+        "invert": [Opcode.INV],
         # "if": [Opcode.JZ],
         "+!": [Opcode.LOAD, Opcode.ADD, Opcode.LIT, Opcode.STORE], # LIT нужен для повторной загрузки адреса переменной
     }.get(symbol, None)

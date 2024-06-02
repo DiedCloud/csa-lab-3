@@ -2,7 +2,7 @@ import logging
 import sys
 from enum import Enum
 
-from isa import Opcode, read_code
+from isa import Opcode, read_code, Instruction
 
 
 class Signal(None, Enum):
@@ -30,15 +30,13 @@ class Signal(None, Enum):
     # TOS multiplexer latch
     SaveALU = None
     SaveLIT = None
-    SaveMEM = None
 
     # latch
-    LatchTOS = None
-    LatchTOS1 = None
     LatchSP = None
 
     #Stack
     WriteFromTOS = None
+    TosToTos1 = None
     ReadToTOS = None
     ReadToTOS1 = None
 
@@ -61,46 +59,84 @@ class Signal(None, Enum):
 
 
 class ALU:
-    negative: bool = False
-    zero: bool = False
-    def sum(self, left: int, right: int):
-        ans = left + right
-        self.negative = ans < 0
-        self.zero = ans == 0
-        return ans
+    SIGNAL_TO_OPERATION = {
+        Signal.SumALU: lambda a, b: a+b,
+        Signal.SubALU: lambda a, b: a-b,
+        Signal.AndALU: lambda a, b: a and b,
+        Signal.OrALU: lambda a, b: a or b,
+        Signal.ISNEG: lambda _, b: b < 0,
+        Signal.InvertRightALU: lambda _, b: -1 if b == 0 else 0,
+    }
+
+    def run(self, signal: Signal, left: int, right: int):
+        return self.SIGNAL_TO_OPERATION[signal](left, right)
 
 
 class DataPath:
     data_memory_size = None
     data_memory = None
+
     tos = None
     tos_1 = None
+    stack_pointer = None
+    stack = None
+
     input_buffer = None
     output_buffer = None
+    alu = ALU()
 
-    def __init__(self, data_memory_size, input_buffer):
+    def __init__(self, data_memory_size, input_buffer: list[str]):
         assert data_memory_size > 0, "Data_memory size should be non-zero"
         self.data_memory_size = data_memory_size
         self.data_memory = [0] * data_memory_size
+
         self.tos = 0
         self.tos1 = 0
-        self.input_buffer = input_buffer
-        self.output_buffer = []
+        self.stack_pointer = 1
+        self.stack = [0, 0]
 
-    def signal_latch_tos(self, value: int):
+        self.input_buffer: list[str] = input_buffer
+        self.output_buffer: list[str] = []
+
+        self.w_mem_io = data_memory_size - 1
+        self.r_mem_io = data_memory_size - 2
+
+    def write_memory(self, data_address: int, value: int):
+        assert 0 <= data_address < self.data_memory_size
+        self.data_memory[data_address] = value
+        if data_address == self.w_mem_io:
+            self.output_buffer.append(str(value))
+
+    def read_memory(self, data_address: int):
+        assert 0 <= data_address < self.data_memory_size
+        res = self.data_memory[data_address]
+        if data_address == self.r_mem_io:
+            if len(self.input_buffer) <= 0:
+                raise EOFError
+            res = self.input_buffer[0]
+            self.input_buffer = self.input_buffer[1::]
+        return res
+
+    def latch_tos(self, value: int):
         self.tos = value
 
-    def signal_latch_tos1(self, value: int):
+    def latch_tos1(self, value: int):
         self.tos1 = value
 
-    def zero(self):
+    def is_zero(self):
         return self.tos == 0
+
+
+class HLT(KeyError):
+    pass
 
 
 class ControlUnit:
     program = None
     program_counter = None
     data_path = None
+    return_stack = None
+    return_stack_pointer = None
     _tick = None
     microprogram = (
         (Signal.MicroProgramCounterOpcode, Signal.LatchMPCounter),  # 0 - Instruction fetch
@@ -303,31 +339,36 @@ class ControlUnit:
 
     @staticmethod
     def opcode_to_mc(opcode: Opcode):
-        return {
-            Opcode.NOP: 1,
-            Opcode.LIT: 2,
-            Opcode.LOAD: 5,
-            Opcode.STORE: 11,
-            Opcode.DUP: 18,
-            Opcode.OVER: 21,
-            Opcode.ADD: 25,
-            Opcode.SUB: 31,
-            Opcode.AND: 38,
-            Opcode.OR: 44,
-            Opcode.INV: 50,
-            Opcode.ISNEG: 51,
-            Opcode.JMP: 52,
-            Opcode.JZ: 53,
-            Opcode.CALL: 59,
-            Opcode.RET: 61,
-        }.get(opcode)
+        try:
+            return {
+                Opcode.NOP: 1,
+                Opcode.LIT: 2,
+                Opcode.LOAD: 5,
+                Opcode.STORE: 11,
+                Opcode.DUP: 18,
+                Opcode.OVER: 21,
+                Opcode.ADD: 25,
+                Opcode.SUB: 31,
+                Opcode.AND: 38,
+                Opcode.OR: 44,
+                Opcode.INV: 50,
+                Opcode.ISNEG: 51,
+                Opcode.JMP: 52,
+                Opcode.JZ: 53,
+                Opcode.CALL: 59,
+                Opcode.RET: 61,
+            }[opcode]
+        except KeyError:
+            raise HLT()
 
-    def __init__(self, program, data_path):
-        self.program = program
-        self.program_counter = 0
-        self.data_path = data_path
-        self._tick = 0
-        self.microprogram_counter = 0
+    def __init__(self, program: list[Instruction], data_path: DataPath):
+        self.program: list[Instruction] = program
+        self.program_counter: int = 0
+        self.data_path: DataPath = data_path
+        self.return_stack: list[int] = [0]
+        self.return_stack_pointer: int = 0
+        self._tick: int = 0
+        self.microprogram_counter: int = 0
 
     def tick(self):
         self._tick += 1
@@ -335,19 +376,74 @@ class ControlUnit:
     def current_tick(self):
         return self._tick
 
-    def on_signal_latch_program_counter(self, sel_next):
-        if sel_next:
+    def on_signal_latch_program_counter(self, microcode: tuple):
+        if Signal.PCJumpTypeNext in microcode:
             self.program_counter += 1
-        else:
-            instr = self.program[self.program_counter]
-            assert "arg" in instr, "internal error"
-            self.program_counter = instr["arg"]
+        elif Signal.PCJumpTypeJZ in microcode:
+            self.program_counter = self.program[self.program_counter].arg if self.data_path.is_zero() else self.program_counter + 1
+        elif Signal.PCJumpTypeJump in microcode:
+            self.program_counter = self.program[self.program_counter].arg
+        elif Signal.PCJumpTypeRET in microcode:
+            self.program_counter = self.return_stack[self.return_stack_pointer]
 
     def on_signal_latch_microprogram_counter(self, microcode: tuple):
-        pass
+        if Signal.MicroProgramCounterNext in microcode:
+            self.microprogram_counter += 1
+        elif Signal.MicroProgramCounterOpcode in microcode:
+            self.microprogram_counter = self.opcode_to_mc(self.program[self.program_counter].opcode)
+        elif Signal.MicroProgramCounterZero in microcode:
+            self.microprogram_counter = 0
 
     def decode_and_execute_signals(self, microcode: tuple):
-        pass
+        for signal in microcode:
+            match signal:
+                case Signal.WriteMem:
+                    self.data_path.write_memory(self.data_path.tos, self.data_path.tos1)
+                case Signal.ReadMem:
+                    self.data_path.read_memory(self.data_path.tos)
+                case Signal.SumALU | Signal.SubALU | Signal.AndALU | Signal.OrALU | Signal.InvertRightALU | Signal.ISNEG:
+
+                    if Signal.TOSLeft in microcode:
+                        alu_left = self.data_path.tos1
+                    elif Signal.IncLeft in microcode:
+                        alu_left = 1
+                    elif Signal.DecLeft in microcode:
+                        alu_left = -1
+                    elif Signal.ZeroRight in microcode:
+                        alu_left = 0
+                    else:
+                        raise ValueError("Nothing chosen on right alu input")
+
+                    if Signal.TOSRight in microcode:
+                        alu_right = self.data_path.tos
+                    elif Signal.SPRight in microcode:
+                        alu_right = 1
+                    elif Signal.ZeroRight in microcode:
+                        alu_right = 0
+                    else:
+                        raise ValueError("Nothing chosen on right alu input")
+
+                    alu_res = self.data_path.alu.run(signal, alu_left, alu_right)
+                    if Signal.SaveALU in microcode:
+                        self.data_path.latch_tos(alu_res)
+
+                case Signal.SaveLIT:
+                    self.data_path.latch_tos(self.program[self.program_counter].arg)
+                case Signal.PushRetStack:
+                    self.return_stack_pointer += 1
+                    if len(self.return_stack) > self.return_stack_pointer:
+                        self.return_stack[self.return_stack_pointer] = self.program_counter
+                    else:
+                        self.return_stack.append(self.program_counter)
+                case Signal.PopRetStack:
+                    self.return_stack_pointer -= 1
+                case Signal.LatchPC:
+                    self.on_signal_latch_program_counter(microcode)
+                case Signal.LatchMPCounter:
+                    self.on_signal_latch_microprogram_counter(microcode)
+                case _:
+                    pass
+
 
     def run(self, limit):
         instr_counter = 0
