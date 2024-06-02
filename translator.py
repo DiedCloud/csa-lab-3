@@ -102,6 +102,22 @@ def split_with_saving_string_literals(text: str):
     return terms
 
 
+def remove_comments(text: str):
+    result = []
+    skip = False
+
+    for char in text:
+        if char == '/':
+            skip = True
+        elif char == '\n':
+            skip = False
+            result.append(char)
+        if not skip:
+            result.append(char)
+
+    return ''.join(result)
+
+
 def text2terms(text) -> list[str]:
     """Трансляция текста в последовательность операторов языка (токенов).
 
@@ -110,6 +126,7 @@ def text2terms(text) -> list[str]:
     - отсеивание всех незначимых символов (считаются комментариями);
     - проверка формальной корректности программы (парность оператора цикла).
     """
+    text = remove_comments(text)
     terms = split_with_saving_string_literals(text)
     check_balance_in_terms(terms)
     terms = remove_brackets(terms)
@@ -139,6 +156,8 @@ def find_variables(terms: list[str]):
 def remove_term_var(terms: list[str]):
     while "variable" in terms:
         terms.remove("variable")
+    while "allot" in terms:
+        terms.remove("allot")
     return terms
 
 
@@ -260,6 +279,5 @@ def main(source, target):
 
 
 if __name__ == "__main__":
-    # assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
-    # _, source, target = sys.argv
-    main("algorithms/prob1.fth", "prob1.json")
+    assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
+    _, source, target = sys.argv

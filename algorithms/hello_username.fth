@@ -10,13 +10,13 @@ variable str_length
     begin
         key             / read char from stdin
         over            / copy i and put on tos
-        str_item       / resolving address
+        str_item        / resolving address
         !               / putting key in address
                         / now tos is i
 
         dup             / checking what we wrote
         str_item @
-        0 = if
+        0 =
         invert          / first cond - not eof
 
         over            / copy i and put on tos
@@ -28,6 +28,7 @@ variable str_length
         -1 = if
             over        / we need put i as length
             str_length !
+        then
     until
 ;
 
