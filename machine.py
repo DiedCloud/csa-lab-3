@@ -359,12 +359,12 @@ class ControlUnit:
                 Opcode.AND: 38,
                 Opcode.OR: 44,
                 Opcode.INV: 50,
-                Opcode.INV: 50,
-                Opcode.ISNEG: 51,
-                Opcode.JMP: 52,
-                Opcode.JZ: 53,
-                Opcode.CALL: 59,
-                Opcode.RET: 61,
+                Opcode.NEG: 51,
+                Opcode.ISNEG: 52,
+                Opcode.JMP: 53,
+                Opcode.JZ: 54,
+                Opcode.CALL: 60,
+                Opcode.RET: 62,
             }[opcode]
         except KeyError:
             raise HLT()
@@ -409,8 +409,15 @@ class ControlUnit:
                     self.data_path.write_memory(self.data_path.tos, self.data_path.tos1)
                 case Signal.ReadMem:
                     self.data_path.read_memory(self.data_path.tos)
-                case Signal.SumALU | Signal.SubALU | Signal.AndALU | Signal.OrALU | Signal.InvertRightALU | Signal.ISNEG:
-
+                case (
+                    Signal.SumALU |
+                    Signal.SubALU |
+                    Signal.AndALU |
+                    Signal.OrALU |
+                    Signal.InvertRightALU |
+                    Signal.ISNEG |
+                    Signal.NegALU
+                ):
                     if Signal.TOSLeft in microcode:
                         alu_left = self.data_path.tos1
                     elif Signal.IncLeft in microcode:
