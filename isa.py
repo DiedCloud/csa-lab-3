@@ -48,11 +48,11 @@ class Opcode(str, Enum):
     OVER = "over"
 
     ADD = "add"
-    NEG = "neg"
+    SUB = "sub"
 
     AND = "and"
     OR = "or"
-    NOT = "not"
+    INV = "invert"
     ISNEG = "is_neg"
 
     JMP = "jmp"
@@ -93,6 +93,6 @@ def read_code(filename):
         # Конвертация списка term в класс Term
         if "term" in instr:
             assert len(instr["term"]) == 3
-            instr["term"] = Term(instr["term"][0], instr["term"][1], instr["term"][2])
+            instr["term"] = Term(instr["term"][0], instr["term"][1])
 
     return code
