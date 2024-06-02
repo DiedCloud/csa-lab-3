@@ -42,6 +42,7 @@ class Opcode(str, Enum):
     AND = "and"
     OR = "or"
     INV = "invert"
+    NEG = "neg"
     ISNEG = "is_neg"
 
     JMP = "jmp"

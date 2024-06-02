@@ -24,6 +24,7 @@ class Signal(None, Enum):
     SubALU = None
     AndALU = None
     OrALU = None
+    NegALU = None
     InvertRightALU = None
     ISNEG = None
 
@@ -296,44 +297,50 @@ class ControlUnit:
          Signal.MicroProgramCounterZero, Signal.LatchMPCounter,
          Signal.PCJumpTypeNext, Signal.LatchPC),  # 50
 
+        # NEG
+        (Signal.ZeroLeft, Signal.TOSRight,
+         Signal.NegALU, Signal.SaveALU,
+         Signal.MicroProgramCounterZero, Signal.LatchMPCounter,
+         Signal.PCJumpTypeNext, Signal.LatchPC),  # 51
+
         # ISNEG
         (Signal.ZeroLeft, Signal.TOSRight,
          Signal.ISNEG, Signal.SaveALU,
          Signal.MicroProgramCounterZero, Signal.LatchMPCounter,
-         Signal.PCJumpTypeNext, Signal.LatchPC),  # 51
+         Signal.PCJumpTypeNext, Signal.LatchPC),  # 52
 
         # JMP
         (Signal.MicroProgramCounterZero, Signal.LatchMPCounter,
-         Signal.PCJumpTypeJump, Signal.LatchPC),  # 52
+         Signal.PCJumpTypeJump, Signal.LatchPC),  # 53
 
         # JZ
         (Signal.MicroProgramCounterNext, Signal.LatchMPCounter,
-         Signal.PCJumpTypeJZ, Signal.LatchPC),  # 53
+         Signal.PCJumpTypeJZ, Signal.LatchPC),  # 54
         (Signal.DecLeft, Signal.SPRight,
          Signal.SumALU, Signal.LatchSP,
-         Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 54
-        (Signal.ReadToTOS,
          Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 55
+        (Signal.ReadToTOS,
+         Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 56
         (Signal.DecLeft, Signal.SPRight,
          Signal.SumALU, Signal.LatchSP,
-         Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 56
-        (Signal.ReadToTOS1,
          Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 57
+        (Signal.ReadToTOS1,
+         Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 58
         (Signal.IncLeft, Signal.SPRight,
          Signal.SumALU, Signal.LatchSP,
          Signal.MicroProgramCounterZero, Signal.LatchMPCounter,
-         Signal.PCJumpTypeNext, Signal.LatchPC),  # 58
+         Signal.PCJumpTypeNext, Signal.LatchPC),  # 59
 
         # CALL
         (Signal.PushRetStack,
-         Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 59
-        (Signal.MicroProgramCounterZero, Signal.LatchMPCounter, Signal.PCJumpTypeNext, Signal.LatchPC),  # 60
+         Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 60
+        (Signal.MicroProgramCounterZero, Signal.LatchMPCounter, Signal.PCJumpTypeNext, Signal.LatchPC),  # 61
 
         # RET
         (Signal.MicroProgramCounterNext, Signal.LatchMPCounter,
-         Signal.PCJumpTypeRET, Signal.LatchPC),  # 61
+         Signal.PCJumpTypeRET, Signal.LatchPC),  # 62
         (Signal.PopRetStack,
-         Signal.MicroProgramCounterZero, Signal.LatchMPCounter),  # 62
+         Signal.MicroProgramCounterZero, Signal.LatchMPCounter),  # 63
     )
     microprogram_counter = None
 
@@ -351,6 +358,7 @@ class ControlUnit:
                 Opcode.SUB: 31,
                 Opcode.AND: 38,
                 Opcode.OR: 44,
+                Opcode.INV: 50,
                 Opcode.INV: 50,
                 Opcode.ISNEG: 51,
                 Opcode.JMP: 52,
