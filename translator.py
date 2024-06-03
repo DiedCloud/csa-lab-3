@@ -1,29 +1,30 @@
 import sys
 
 from isa import Opcode, Instruction, write_data_and_code
+from machine import DataPath
 
 
 def term2instructions(symbol):
     """Отображение операторов исходного кода в коды операций."""
     return {
-        "+": [Opcode.ADD],
-        "-": [Opcode.SUB],
-        ";": [Opcode.RET],
-        "dup": [Opcode.DUP],
-        "over": [Opcode.OVER],
-        "key": [Opcode.LIT, Opcode.LOAD],
-        "emit": [Opcode.LIT, Opcode.STORE],
-        ".": [Opcode.LIT, Opcode.STORE],
-        "!": [Opcode.STORE],
-        "@": [Opcode.LOAD],
-        "<": [Opcode.SUB, Opcode.ISNEG],
-        ">": [Opcode.SUB, Opcode.NEG, Opcode.ISNEG],
-        "=": [Opcode.SUB, Opcode.INV],
-        "or": [Opcode.OR],
-        "and": [Opcode.AND],
-        "invert": [Opcode.INV],
+        "+": [Instruction(Opcode.ADD)],
+        "-": [Instruction(Opcode.SUB)],
+        ";": [Instruction(Opcode.RET)],
+        "dup": [Instruction(Opcode.DUP)],
+        "over": [Instruction(Opcode.OVER)],
+        "key": [Instruction(Opcode.LIT, arg=DataPath.READ_MEM_IO_MAPPING), Instruction(Opcode.LOAD)],
+        "emit": [Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING), Instruction(Opcode.STORE)],
+        ".": [Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING), Instruction(Opcode.STORE)],
+        "!": [Instruction(Opcode.STORE)],
+        "@": [Instruction(Opcode.LOAD)],
+        "<": [Instruction(Opcode.SUB), Instruction(Opcode.ISNEG)],
+        ">": [Instruction(Opcode.SUB), Instruction(Opcode.NEG), Instruction(Opcode.ISNEG)],
+        "=": [Instruction(Opcode.SUB), Instruction(Opcode.INV)],
+        "or": [Instruction(Opcode.OR)],
+        "and": [Instruction(Opcode.AND)],
+        "invert": [Instruction(Opcode.INV)],
         # "if": [Opcode.JZ],
-        "+!": [Opcode.LOAD, Opcode.ADD, Opcode.LIT, Opcode.STORE], # LIT нужен для повторной загрузки адреса переменной
+        "+!": [Instruction(Opcode.LOAD), Instruction(Opcode.ADD), Instruction(Opcode.LIT, arg=1), Instruction(Opcode.STORE)], # LIT нужен для повторной загрузки адреса переменной
     }.get(symbol, None)
 
 
@@ -136,7 +137,8 @@ def text2terms(text) -> list[str]:
 def find_variables(terms: list[str]):
     """Находим токены, определяющие переменные, и даем им место в памяти"""
     variables: dict[str, int] = dict()
-    last_free_address = 0
+    # Память в модели не ограничивается, поэтому можно выделять память после ячеек предназначенных под порты
+    last_free_address = max(DataPath.READ_MEM_IO_MAPPING, DataPath.WRITE_MEM_IO_MAPPING) + 1
 
     # Получается формально ничего не мешает объявить переменную где угодно. Но она, очевидно, глобальная
     for i in range(len(terms)-3):
@@ -182,6 +184,7 @@ def translate(text):
     functions = find_functions(terms)
 
     data: list[int | str] = [0] * last_free_address # инициализируем выделенную память
+    print(data)
     code: list[Instruction] = []
 
     # Транслируем термы в машинный код.
@@ -208,15 +211,8 @@ def translate(text):
             terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JZ, len(terms_to_instruction_lists))]
             terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
 
-        elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций.
-            opcodes: list[Opcode] = term2instructions(terms[term_num])
-            instructions: list[Instruction] = []
-            for op in opcodes:
-                if op == Opcode.LIT: # ПЛОХО. Но аргументы имеют только LIT и прыжки, а в ответе может быть только LIT, которому нужна 1
-                    instructions.append(Instruction(op, arg=1))
-                else:
-                    instructions.append(Instruction(op))
-            terms_to_instruction_lists.append(instructions)
+        elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций
+            terms_to_instruction_lists.append(term2instructions(terms[term_num]))
 
         elif terms[term_num] in variables:
             # обращение к переменной - положить ассоциированный адрес на вершину стека
@@ -230,10 +226,9 @@ def translate(text):
 
         elif terms[term_num][0:2:] == ".\"" and terms[term_num][-1] == "\"":
             data += [char for char in terms[term_num][2:-1:]]
+            terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=len(data)-len(terms[term_num][2:-1:]))])
             terms_to_instruction_lists.append([
-                Instruction(Opcode.LIT, arg=len(data)-len(terms[term_num][2:-1:])),
-
-                Instruction(Opcode.LIT, arg=0), # TODO порт вывода
+                Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING),
                 Instruction(Opcode.OVER),
                 Instruction(Opcode.LOAD),
                 Instruction(Opcode.STORE),
@@ -251,16 +246,16 @@ def translate(text):
         else:
             pass
 
-    cur_pc = 0
     print(terms_to_instruction_lists)
     for term_num in range(len(terms_to_instruction_lists)):
-        i = term_num + 1
-        while i < len(terms_to_instruction_lists):
-            if terms_to_instruction_lists[i][0].arg == term_num: # если есть вызовы с таким номером токена
-                terms_to_instruction_lists[i][0].arg = cur_pc  # то поставить им правильный адрес
-            i += 1
         code += terms_to_instruction_lists[term_num]
-        cur_pc += len(terms_to_instruction_lists[term_num])
+
+    # В машинном коде инструкций больше, чем токенов. Обновляем аргумент
+    for c in range(len(code)):
+        if code[c].opcode in (Opcode.CALL, Opcode.JMP, Opcode.JZ):
+            term_num = code[c].arg
+            pc = sum([len(i) for i in terms_to_instruction_lists[0:term_num]])
+            code[c].arg = pc
 
     # Добавляем инструкцию остановки процессора в конец программы.
     code.append(Instruction(Opcode.HALT))
@@ -281,3 +276,4 @@ def main(source, target):
 if __name__ == "__main__":
     assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
     _, source, target = sys.argv
+    main(source, target)
