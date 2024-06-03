@@ -437,7 +437,7 @@ class ControlUnit:
                     if Signal.TOSRight in microcode:
                         alu_right = self.data_path.tos
                     elif Signal.SPRight in microcode:
-                        alu_right = 1
+                        alu_right = self.data_path.stack_pointer
                     elif Signal.ZeroRight in microcode:
                         alu_right = 0
                     else:
