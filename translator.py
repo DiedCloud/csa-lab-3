@@ -228,18 +228,19 @@ def translate(text):
             data += [char for char in terms[term_num][2:-1:]]
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=len(data)-len(terms[term_num][2:-1:]))])
             terms_to_instruction_lists.append([
-                Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING),
-                Instruction(Opcode.OVER),
+                Instruction(Opcode.DUP),
                 Instruction(Opcode.LOAD),
+                Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING),
                 Instruction(Opcode.STORE),
 
                 Instruction(Opcode.LIT, arg=1),
                 Instruction(Opcode.ADD), # инкремент адреса памяти
 
                 Instruction(Opcode.DUP),
+                Instruction(Opcode.LIT, arg=len(data)),
                 Instruction(Opcode.SUB), # <
                 Instruction(Opcode.ISNEG),
-                Instruction(Opcode.JZ, arg=term_num) # term_num+1 т.к. цикл начинается на второй инструкции из этих
+                Instruction(Opcode.JNZ, arg=term_num) # term_num+1 т.к. цикл начинается на второй инструкции из этих
             ])
         elif terms[term_num].isdigit() or terms[term_num][0] == '-' and terms[term_num][1::].isdigit():
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
