@@ -463,9 +463,9 @@ class ControlUnit:
                 case Signal.PushRetStack:
                     self.return_stack_pointer += 1
                     if len(self.return_stack) > self.return_stack_pointer:
-                        self.return_stack[self.return_stack_pointer] = self.program_counter
+                        self.return_stack[self.return_stack_pointer] = self.program_counter + 1
                     else:
-                        self.return_stack.append(self.program_counter)
+                        self.return_stack.append(self.program_counter + 1)
                 case Signal.PopRetStack:
                     self.return_stack_pointer -= 1
 
