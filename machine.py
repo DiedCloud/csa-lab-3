@@ -5,58 +5,58 @@ from enum import Enum
 from isa import Opcode, read_data_and_code, Instruction
 
 
-class Signal(None, Enum):
+class Signal(str, Enum):
     # Memory
-    WriteMem = None
-    ReadMem = None
+    WriteMem = "WriteMem"
+    ReadMem = "ReadMem"
 
     # ALU multiplexer latch
-    TOSRight = None
-    SPRight = None
-    ZeroRight = None
+    TOSRight = "TOSRight"
+    SPRight = "SPRight"
+    ZeroRight = "ZeroRight"
 
-    IncLeft = None
-    DecLeft = None
-    ZeroLeft = None
-    TOSLeft = None
+    IncLeft = "IncLeft"
+    DecLeft = "DecLeft"
+    ZeroLeft = "ZeroLeft"
+    TOSLeft = "TOSLeft"
 
-    SumALU = None
-    SubALU = None
-    AndALU = None
-    OrALU = None
-    NegALU = None
-    InvertRightALU = None
-    ISNEG = None
+    SumALU = "SumALU"
+    SubALU = "SubALU"
+    AndALU = "AndALU"
+    OrALU = "OrALU"
+    NegALU = "NegALU"
+    InvertRightALU = "InvertRightALU"
+    ISNEG = "ISNEG"
 
     # TOS multiplexer latch
-    SaveALU = None
-    SaveLIT = None
+    SaveALU = "SaveALU"
+    SaveLIT = "SaveLIT"
 
     # latch
-    LatchSP = None
+    LatchSP = "LatchSP"
 
     #Stack
-    WriteFromTOS = None
-    TosToTos1 = None
-    ReadToTOS = None
-    ReadToTOS1 = None
+    WriteFromTOS = "WriteFromTOS"
+    TosToTos1 = "TosToTos1"
+    ReadToTOS = "ReadToTOS"
+    ReadToTOS1 = "ReadToTOS1"
 
     # Controlling
-    PCJumpTypeJZ = None
-    PCJumpTypeJump = None
-    PCJumpTypeNext = None
-    PCJumpTypeRET = None
-    MicroProgramCounterZero = None
-    MicroProgramCounterOpcode = None
-    MicroProgramCounterNext = None
+    PCJumpTypeJZ = "PCJumpTypeJZ"
+    PCJumpTypeJump = "PCJumpTypeJump"
+    PCJumpTypeNext = "PCJumpTypeNext"
+    PCJumpTypeRET = "PCJumpTypeRET"
+    MicroProgramCounterZero = "MicroProgramCounterZero"
+    MicroProgramCounterOpcode = "MicroProgramCounterOpcode"
+    MicroProgramCounterNext = "MicroProgramCounterNext"
 
     # Return Stack
-    PushRetStack = None
-    PopRetStack = None
+    PushRetStack = "PushRetStack"
+    PopRetStack = "PopRetStack"
 
     # latch
-    LatchPC = None
-    LatchMPCounter = None
+    LatchPC = "LatchPC"
+    LatchMPCounter = "LatchMPCounter"
 
 
 class ALU:
