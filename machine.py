@@ -121,6 +121,14 @@ class DataPath:
     def latch_tos1(self, value: int):
         self.tos1 = value
 
+    def latch_sp(self, value: int):
+        self.stack_pointer = value
+
+    def write_from_tos(self):
+        while len(self.stack) <= self.stack_pointer:
+            self.stack.append(0)
+        self.stack[self.stack_pointer] = self.tos
+
     def is_zero(self):
         return self.tos == 0
 
@@ -402,6 +410,7 @@ class ControlUnit:
 
     def decode_and_execute_signals(self, microcode: tuple):
         for signal in microcode:
+            alu_res = 0
             match signal:
                 case Signal.WriteMem:
                     self.data_path.write_memory(self.data_path.tos, self.data_path.tos1)
@@ -442,6 +451,17 @@ class ControlUnit:
 
                 case Signal.SaveLIT:
                     self.data_path.latch_tos(self.program[self.program_counter].arg)
+                case Signal.LatchSP:
+                    self.data_path.latch_sp(alu_res)
+                case Signal.WriteFromTOS:
+                    self.data_path.write_from_tos()
+                case Signal.TosToTos1:
+                    self.data_path.latch_tos1(self.data_path.tos)
+                case Signal.ReadToTOS:
+                    self.data_path.latch_tos(self.data_path.stack[self.data_path.stack_pointer])
+                case Signal.ReadToTOS1:
+                    self.data_path.latch_tos1(self.data_path.stack[self.data_path.stack_pointer])
+
                 case Signal.PushRetStack:
                     self.return_stack_pointer += 1
                     if len(self.return_stack) > self.return_stack_pointer:
@@ -450,6 +470,7 @@ class ControlUnit:
                         self.return_stack.append(self.program_counter)
                 case Signal.PopRetStack:
                     self.return_stack_pointer -= 1
+
                 case Signal.LatchPC:
                     self.on_signal_latch_program_counter(microcode)
                 case Signal.LatchMPCounter:
