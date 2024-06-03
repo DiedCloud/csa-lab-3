@@ -413,7 +413,7 @@ class ControlUnit:
                 case Signal.WriteMem:
                     self.data_path.write_memory(self.data_path.tos, self.data_path.tos1)
                 case Signal.ReadMem:
-                    self.data_path.read_memory(self.data_path.tos)
+                    self.data_path.latch_tos(self.data_path.read_memory(self.data_path.tos))
                 case (
                     Signal.SumALU |
                     Signal.SubALU |
