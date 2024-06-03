@@ -407,8 +407,8 @@ class ControlUnit:
             self.microprogram_counter = 0
 
     def decode_and_execute_signals(self, microcode: tuple):
+        alu_res = 0
         for signal in microcode:
-            alu_res = 0
             match signal:
                 case Signal.WriteMem:
                     self.data_path.write_memory(self.data_path.tos, self.data_path.tos1)
