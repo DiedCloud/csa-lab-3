@@ -75,7 +75,6 @@ class ALU:
 
 
 class DataPath:
-    data_memory_size = None
     data_memory = None
 
     tos = None
@@ -87,10 +86,11 @@ class DataPath:
     output_buffer = None
     alu = ALU()
 
-    def __init__(self, data_memory_size, input_buffer: list[str]):
-        assert data_memory_size > 0, "Data_memory size should be non-zero"
-        self.data_memory_size = data_memory_size
-        self.data_memory = [0] * data_memory_size
+    WRITE_MEM_IO_MAPPING = 0
+    READ_MEM_IO_MAPPING = 1
+
+    def __init__(self, data_memory, input_buffer: list[str]):
+        self.data_memory = data_memory
 
         self.tos = 0
         self.tos1 = 0
@@ -100,19 +100,15 @@ class DataPath:
         self.input_buffer: list[str] = input_buffer
         self.output_buffer: list[str] = []
 
-        self.w_mem_io = data_memory_size - 1
-        self.r_mem_io = data_memory_size - 2
 
-    def write_memory(self, data_address: int, value: int):
-        assert 0 <= data_address < self.data_memory_size
+    def write_memory(self, data_address: int, value: int): # передать тип вывода?
         self.data_memory[data_address] = value
-        if data_address == self.w_mem_io:
+        if data_address == self.WRITE_MEM_IO_MAPPING:
             self.output_buffer.append(str(value))
 
     def read_memory(self, data_address: int):
-        assert 0 <= data_address < self.data_memory_size
         res = self.data_memory[data_address]
-        if data_address == self.r_mem_io:
+        if data_address == self.READ_MEM_IO_MAPPING:
             if len(self.input_buffer) <= 0:
                 raise EOFError
             res = self.input_buffer[0]
@@ -157,7 +153,7 @@ class ControlUnit:
          Signal.PCJumpTypeNext, Signal.LatchPC),  # 4
 
         # LOAD
-        (Signal.ReadMem, Signal.SaveMEM,
+        (Signal.ReadMem,
          Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 5
         (Signal.DecLeft, Signal.SPRight,
          Signal.SumALU, Signal.LatchSP,
@@ -175,7 +171,7 @@ class ControlUnit:
          Signal.PCJumpTypeNext, Signal.LatchPC),  # 10
 
         # STORE
-        (Signal.WriteMem, Signal.SaveMEM,
+        (Signal.WriteMem,
          Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 11
         (Signal.DecLeft, Signal.SPRight,
          Signal.SumALU, Signal.LatchSP,
