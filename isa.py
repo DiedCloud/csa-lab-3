@@ -10,7 +10,7 @@
 ```json
 [
     {
-        "opcode": "jz",
+        "opcode": "jnz",
         "arg": 5
     },
 ]
@@ -46,7 +46,7 @@ class Opcode(str, Enum):
     ISNEG = "is_neg"
 
     JMP = "jmp"
-    JZ = "jz"
+    JNZ = "jnz"
 
     CALL = "call"
     RET = "ret"

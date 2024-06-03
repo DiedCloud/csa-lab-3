@@ -23,7 +23,7 @@ def term2instructions(symbol):
         "or": [Instruction(Opcode.OR)],
         "and": [Instruction(Opcode.AND)],
         "invert": [Instruction(Opcode.INV)],
-        # "if": [Opcode.JZ],
+        # "if": [Opcode.JNZ],
         "+!": [Instruction(Opcode.LOAD), Instruction(Opcode.ADD), Instruction(Opcode.LIT, arg=1), Instruction(Opcode.STORE)], # LIT нужен для повторной загрузки адреса переменной
     }.get(symbol, None)
 
@@ -200,7 +200,7 @@ def translate(text):
             # формируем цикл с началом из jmp_stack
             begin_pc = jmp_stack.pop()
             begin = Instruction(Opcode.NOP)
-            end = Instruction(Opcode.JZ, begin_pc)
+            end = Instruction(Opcode.JNZ, begin_pc)
             terms_to_instruction_lists[begin_pc] = [begin]
             terms_to_instruction_lists.append([end])
 
@@ -208,7 +208,7 @@ def translate(text):
             terms_to_instruction_lists.append([None])
             jmp_stack.append(len(terms_to_instruction_lists)-1)
         elif terms[term_num] == "then":
-            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JZ, len(terms_to_instruction_lists))]
+            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JNZ, len(terms_to_instruction_lists))]
             terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
 
         elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций
@@ -252,7 +252,7 @@ def translate(text):
 
     # В машинном коде инструкций больше, чем токенов. Обновляем аргумент
     for c in range(len(code)):
-        if code[c].opcode in (Opcode.CALL, Opcode.JMP, Opcode.JZ):
+        if code[c].opcode in (Opcode.CALL, Opcode.JMP, Opcode.JNZ):
             term_num = code[c].arg
             pc = sum([len(i) for i in terms_to_instruction_lists[0:term_num]])
             code[c].arg = pc
