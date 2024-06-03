@@ -66,7 +66,7 @@ class ALU:
         Signal.AndALU: lambda a, b: a and b,
         Signal.OrALU: lambda a, b: a or b,
         Signal.NegALU: lambda _, b: -b,
-        Signal.ISNEG: lambda _, b: b < 0,
+        Signal.ISNEG: lambda _, b: -1 if b < 0 else 0,
         Signal.InvertRightALU: lambda _, b: -1 if b == 0 else 0,
     }
 
@@ -486,13 +486,13 @@ class ControlUnit:
 
     def __repr__(self):
         state_repr = (
-            f"TICK: {self._tick:3}"
-            f" PC: {self.program_counter:3}"
-            f" PREV_MPC: {self.prev_mpc}"
-            f" CUR_MPC: {self.microprogram_counter}"
-            f" TOS: {self.data_path.tos}"
-            f" TOS1: {self.data_path.tos1}"
-            f" SP: {self.data_path.stack_pointer}"
+            f"TICK: {self._tick:3}\t"
+            f"PC: {self.program_counter:3}\t"
+            f"PREV_MPC: {self.prev_mpc}\t"
+            f"CUR_MPC: {self.microprogram_counter}\t"
+            f"TOS: {self.data_path.tos}\t"
+            f"TOS1: {self.data_path.tos1}\t"
+            f"SP: {self.data_path.stack_pointer}\t"
         )
 
         instr = self.program[self.program_counter]
@@ -506,14 +506,14 @@ class ControlUnit:
 
 
 def main(code_file, input_file):
-    code = read_data_and_code(code_file)
+    data, code = read_data_and_code(code_file)
     with open(input_file, encoding="utf-8") as file:
         input_text = file.read()
         input_token = []
         for char in input_text:
             input_token.append(char)
 
-    data_path = DataPath(100, input_token)
+    data_path = DataPath(data, input_token)
     control_unit = ControlUnit(code, data_path)
     output, instr_counter, ticks = control_unit.run(1000)
 
