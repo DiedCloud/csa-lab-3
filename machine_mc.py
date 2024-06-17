@@ -86,8 +86,9 @@ class DataPath:
     output_buffer = None
     alu = ALU()
 
-    WRITE_MEM_IO_MAPPING = 0
-    READ_MEM_IO_MAPPING = 1
+    WRITE_MEM_IO_MAPPING_INT = 0 # Устройство, выводящее значение ячеек
+    WRITE_MEM_IO_MAPPING_CHAR = 1 # Устройство, выводящее символы
+    READ_MEM_IO_MAPPING = 2
 
     def __init__(self, data_memory, input_buffer: list[str]):
         self.data_memory = data_memory
@@ -101,18 +102,22 @@ class DataPath:
         self.output_buffer: list[str] = []
 
 
-    def write_memory(self, data_address: int, value: int): # передать тип вывода?
+    def write_memory(self, data_address: int, value: int):
         self.data_memory[data_address] = value
-        if data_address == self.WRITE_MEM_IO_MAPPING:
+        if data_address == self.WRITE_MEM_IO_MAPPING_CHAR:
+            self.output_buffer.append(str(value))
+        if data_address == self.WRITE_MEM_IO_MAPPING_INT:
             self.output_buffer.append(str(value))
 
     def read_memory(self, data_address: int):
-        res = self.data_memory[data_address]
         if data_address == self.READ_MEM_IO_MAPPING:
             if len(self.input_buffer) <= 0:
                 raise EOFError
             res = self.input_buffer[0]
+            assert isinstance(res, int), "Memory can contain only integers"
             self.input_buffer = self.input_buffer[1::]
+        else:
+            res = self.data_memory[data_address]
         return res
 
     def latch_tos(self, value: int):
@@ -133,7 +138,7 @@ class DataPath:
         return self.tos != 0
 
 
-class HLT(KeyError):
+class HLT(StopIteration):
     pass
 
 
