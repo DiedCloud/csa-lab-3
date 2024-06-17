@@ -29,6 +29,7 @@ def term2instructions(symbol):
 
 
 def check_balance_in_terms(terms: list[str]):
+    """Проверяет закрыты ли условные операторы, операторы циклов, определения процедур"""
     # но вообще надо проверять на "правильную скобочную последовательность"
 
     deep = 0
@@ -61,7 +62,7 @@ def check_balance_in_terms(terms: list[str]):
 
 
 def remove_brackets(terms: list[str]):
-    # убираем то, что в скобах (например семантика функции)
+    """Убирает то, что в скобах (например семантика функции)"""
     new_terms = []
     deep = 0
     for term_num, term in enumerate(terms):
@@ -77,6 +78,7 @@ def remove_brackets(terms: list[str]):
 
 
 def split_with_saving_string_literals(text: str):
+    """Разбивает на токены, причем ." " тоже считается токеном."""
     string_literals = []
     text_prep = [text]
     while isinstance(text_prep[-1], str) and text_prep[-1].find(".\""):
@@ -94,7 +96,6 @@ def split_with_saving_string_literals(text: str):
         text_prep.append(raw.split())
 
     terms = []
-    i = 0
     for i in range(len(text_prep)-1):
         terms += text_prep[i]
         terms.append(string_literals[i])
@@ -104,6 +105,7 @@ def split_with_saving_string_literals(text: str):
 
 
 def remove_comments(text: str):
+    """Убирает все в строке после /"""
     result = []
     skip = False
 
@@ -184,7 +186,6 @@ def translate(text):
     functions = find_functions(terms)
 
     data: list[int | str] = [0] * last_free_address # инициализируем выделенную память
-    print(data)
     code: list[Instruction] = []
 
     # Транслируем термы в машинный код.
@@ -225,8 +226,13 @@ def translate(text):
                 terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=functions[terms[term_num]][0])])
 
         elif terms[term_num][0:2:] == ".\"" and terms[term_num][-1] == "\"":
-            data += [char for char in terms[term_num][2:-1:]]
+            # Записываем строку в память по одному символу на ячейку. Причем храним Unicode коды.
+            data += [ord(char) for char in terms[term_num][2:-1:]]
+            # Инициализация указателя на ячейку памяти отдельным токеном
+            # (чтобы при смене номеров токенов в аргументах на адреса инструкций не трогать эту инструкцию)
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=len(data)-len(terms[term_num][2:-1:]))])
+
+            # цикл вывода строки
             terms_to_instruction_lists.append([
                 Instruction(Opcode.DUP),
                 Instruction(Opcode.LOAD),
@@ -240,7 +246,7 @@ def translate(text):
                 Instruction(Opcode.LIT, arg=len(data)),
                 Instruction(Opcode.SUB), # <
                 Instruction(Opcode.ISNEG),
-                Instruction(Opcode.JNZ, arg=term_num) # term_num+1 т.к. цикл начинается на второй инструкции из этих
+                Instruction(Opcode.JNZ, arg=term_num)
             ])
         elif terms[term_num].isdigit() or terms[term_num][0] == '-' and terms[term_num][1::].isdigit():
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
