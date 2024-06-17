@@ -1,7 +1,7 @@
 import sys
 
 from isa import Opcode, Instruction, write_data_and_code
-from machine import DataPath
+from machine_hw import DataPath
 
 
 def term2instructions(symbol):
