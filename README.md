@@ -223,9 +223,11 @@ ___Кроме команд `DUP` и `OVER`.___ \
 
 ## Модель процессора
 
-~~`Microcoded` модель процессора реализована в модуле [machine_mc.py](/machine_mc.py).~~
+`DataPath` реализован в модуле [data_path.py](/data_path.py)
 
-`Hardwired` модель процессора реализована в модуле [machine_hw.py](/machine_hw.py).
+~~`Control Unit` для `Microcoded` модели процессора реализован в модуле [machine_mc.py](/machine_mc.py).~~
+
+`Control Unit` для `Hardwired` модели процессора реализован в модуле [machine_hw.py](/machine_hw.py).
 
 ## Тестирование
 ## Общая статистика
