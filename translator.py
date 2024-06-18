@@ -9,7 +9,7 @@ def term2instructions(symbol):
     return {
         "+": [Instruction(Opcode.ADD)],
         "-": [Instruction(Opcode.SUB)],
-        ";": [Instruction(Opcode.RET)],
+        # ";": [Instruction(Opcode.RET)],
         "dup": [Instruction(Opcode.DUP)],
         "over": [Instruction(Opcode.OVER)],
         "key": [Instruction(Opcode.LIT, arg=DataPath.READ_MEM_IO_MAPPING), Instruction(Opcode.LOAD)],
@@ -66,13 +66,12 @@ def remove_brackets(terms: list[str]):
     new_terms = []
     deep = 0
     for term_num, term in enumerate(terms):
-        if term == "(":
+        if term[0] == "(":
             deep += 1
-        if term == ")":
-            deep -= 1
-        assert deep >= 0, "Unbalanced ()!"
         if deep == 0:
             new_terms.append(term)
+        if term[-1] == ")":
+            deep -= 1
     assert deep == 0, "Unbalanced ()!"
     return new_terms
 
@@ -162,22 +161,21 @@ def find_variables(terms: list[str]):
 
 def remove_term_var(terms: list[str]):
     while "variable" in terms:
-        terms.remove("variable")
+        i = terms.index("variable")
+        terms = terms[0:i:] + terms[i+2::]
     while "allot" in terms:
-        terms.remove("allot")
+        i = terms.index("allot")
+        terms = terms[0:i-1:] + terms[i+1::]
     return terms
 
 
 def find_functions(terms: list[str]):
-    """Определяем номера токенов начал функций"""
-    functions: dict[str, tuple[int, int]] = dict()
+    """Определяем имена функций"""
+    functions: set[str] = set()
 
-    begin = 0
     for i in range(len(terms)-1):
         if terms[i] == ":":
-            begin = i + 1 # Сразу в начало кода функции. (скобки убраны из токенов)
-        if terms[i] == ";":
-            functions[terms[begin]] = (begin, i + 1) # Сразу в после кода функции, т.к. ; это инструкция ret
+            functions.add(terms[i+1])
 
     return functions
 
@@ -194,6 +192,7 @@ def translate(text):
     # Транслируем термы в машинный код.
     terms_to_instruction_lists: list[list[Instruction]] = []
     jmp_stack: list[int] = []
+    func_addr: dict[str, int] = dict()
     for term_num in range(len(terms)):
 
         if terms[term_num] == "begin":
@@ -204,16 +203,16 @@ def translate(text):
             # формируем цикл с началом из jmp_stack
             begin_pc = jmp_stack.pop()
             begin = Instruction(Opcode.NOP)
-            end = Instruction(Opcode.JNZ, begin_pc)
+            end = [Instruction(Opcode.INV), Instruction(Opcode.JNZ, begin_pc)]
             terms_to_instruction_lists[begin_pc] = [begin]
-            terms_to_instruction_lists.append([end])
+            terms_to_instruction_lists.append(end)
 
         elif terms[term_num] == "if":
             terms_to_instruction_lists.append([None])
             jmp_stack.append(len(terms_to_instruction_lists)-1)
         elif terms[term_num] == "then":
-            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JNZ, len(terms_to_instruction_lists))]
             terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
+            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JNZ, len(terms_to_instruction_lists))]
 
         elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций
             terms_to_instruction_lists.append(term2instructions(terms[term_num]))
@@ -223,10 +222,17 @@ def translate(text):
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=variables[terms[term_num]])])
 
         elif terms[term_num] == ":":  # если пришли к определению функции, то её надо перепрыгнуть
-            terms_to_instruction_lists.append([Instruction(Opcode.JMP, arg=functions[terms[term_num+1]][1])])
+            terms_to_instruction_lists.append([None])
+            jmp_stack.append(len(terms_to_instruction_lists)-1) # нужно будет поставить JUMP с переходом сразу за функцию
         elif terms[term_num] in functions:
             if terms[term_num-1] != ":":
-                terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=functions[terms[term_num]][0])])
+                terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=func_addr[terms[term_num]])])
+            else:
+                func_addr[terms[term_num]] = term_num # записываем номер терма с началом функции (указываем на NOP)
+                terms_to_instruction_lists.append([Instruction(Opcode.NOP)]) # чтобы не ломать адресацию замещаем токен с именем функции на NOP
+        elif terms[term_num] == ";":
+            terms_to_instruction_lists.append([Instruction(Opcode.RET)])
+            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JMP, len(terms_to_instruction_lists))]
 
         elif terms[term_num][0:2:] == ".\"" and terms[term_num][-1] == "\"":
             # Записываем строку в память по одному символу на ячейку. Причем храним Unicode коды.
@@ -249,7 +255,7 @@ def translate(text):
                 Instruction(Opcode.LIT, arg=len(data)),
                 Instruction(Opcode.SUB), # <
                 Instruction(Opcode.ISNEG),
-                Instruction(Opcode.JNZ, arg=term_num)
+                Instruction(Opcode.JNZ, arg=term_num+1)
             ])
         elif terms[term_num].isdigit() or terms[term_num][0] == '-' and terms[term_num][1::].isdigit():
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
