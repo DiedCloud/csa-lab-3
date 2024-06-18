@@ -140,7 +140,10 @@ def find_variables(terms: list[str]):
     """Находим токены, определяющие переменные, и даем им место в памяти"""
     variables: dict[str, int] = dict()
     # Память в модели не ограничивается, поэтому можно выделять память после ячеек предназначенных под порты
-    last_free_address = max(DataPath.READ_MEM_IO_MAPPING, DataPath.WRITE_MEM_IO_MAPPING) + 1
+    last_free_address = max(
+        DataPath.READ_MEM_IO_MAPPING,
+        DataPath.WRITE_MEM_IO_MAPPING_INT,
+        DataPath.WRITE_MEM_IO_MAPPING_CHAR) + 1
 
     # Получается формально ничего не мешает объявить переменную где угодно. Но она, очевидно, глобальная
     for i in range(len(terms)-3):
@@ -236,7 +239,7 @@ def translate(text):
             terms_to_instruction_lists.append([
                 Instruction(Opcode.DUP),
                 Instruction(Opcode.LOAD),
-                Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING),
+                Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING_CHAR),
                 Instruction(Opcode.STORE),
 
                 Instruction(Opcode.LIT, arg=1),

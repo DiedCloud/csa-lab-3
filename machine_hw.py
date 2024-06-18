@@ -106,7 +106,7 @@ class ControlUnit:
         }
         alu_res = self.data_path.alu.run(signal[instruction.opcode], alu_left, alu_right)
 
-        self.data_path.latch_sp(alu_res)
+        self.data_path.latch_tos(alu_res)
         self.tick()
 
         alu_left = -1
