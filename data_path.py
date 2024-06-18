@@ -54,9 +54,10 @@ class DataPath:
     def read_memory(self, data_address: int):
         if data_address == self.READ_MEM_IO_MAPPING:
             if len(self.input_buffer) <= 0:
-                raise EOFError
-            res = ord(self.input_buffer[0])
-            self.input_buffer = self.input_buffer[1::]
+                res = 0 # EOF
+            else:
+                res = ord(self.input_buffer[0])
+                self.input_buffer = self.input_buffer[1::]
         else:
             res = self.data_memory[data_address]
         assert isinstance(res, int), "Memory can contain only integers"

@@ -255,7 +255,7 @@ def translate(text):
                 Instruction(Opcode.LIT, arg=len(data)),
                 Instruction(Opcode.SUB), # <
                 Instruction(Opcode.ISNEG),
-                Instruction(Opcode.JNZ, arg=term_num+1)
+                Instruction(Opcode.JNZ, arg=len(terms_to_instruction_lists))
             ])
         elif terms[term_num].isdigit() or terms[term_num][0] == '-' and terms[term_num][1::].isdigit():
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
