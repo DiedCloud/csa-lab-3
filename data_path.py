@@ -20,7 +20,7 @@ class DataPath:
     data_memory = None
 
     tos = None
-    tos_1 = None
+    tos1 = None
     stack_pointer = None
     stack = None
 
@@ -47,7 +47,7 @@ class DataPath:
     def write_memory(self, data_address: int, value: int):
         self.data_memory[data_address] = value
         if data_address == self.WRITE_MEM_IO_MAPPING_CHAR:
-            self.output_buffer.append(str(value))
+            self.output_buffer.append(chr(value))
         if data_address == self.WRITE_MEM_IO_MAPPING_INT:
             self.output_buffer.append(str(value))
 
@@ -55,11 +55,11 @@ class DataPath:
         if data_address == self.READ_MEM_IO_MAPPING:
             if len(self.input_buffer) <= 0:
                 raise EOFError
-            res = self.input_buffer[0]
-            assert isinstance(res, int), "Memory can contain only integers"
+            res = ord(self.input_buffer[0])
             self.input_buffer = self.input_buffer[1::]
         else:
             res = self.data_memory[data_address]
+        assert isinstance(res, int), "Memory can contain only integers"
         return res
 
     def latch_tos(self, value: int):
