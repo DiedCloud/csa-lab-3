@@ -1,0 +1,125 @@
+in_source: |
+  : cat
+    begin
+       key
+       dup
+       emit
+    0 = until
+  ;
+  cat
+in_stdin: |
+  kirill
+out_stdout: |
+  kirill
+  instr_counter: 81 ticks: 285
+out_log: |
+  DEBUG:  TICK:   0       PC:   0 TOS:   0        TOS1:   0       SP:   1         jmp 14
+  DEBUG:  TICK:   1       PC:  14 TOS:   0        TOS1:   0       SP:   1         call 1
+  DEBUG:  TICK:   3       PC:   1 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK:   3       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK:   3       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK:   7       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK:   9       PC:   5 TOS: 107        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  12       PC:   6 TOS: 107        TOS1: 107       SP:   3         lit 1
+  DEBUG:  TICK:  16       PC:   7 TOS:   1        TOS1: 107       SP:   4         store None
+  DEBUG:  TICK:  23       PC:   8 TOS: 107        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK:  27       PC:   9 TOS:   0        TOS1: 107       SP:   3         sub None
+  DEBUG:  TICK:  33       PC:  10 TOS: 107        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK:  35       PC:  11 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK:  37       PC:  12 TOS:  -1        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK:  43       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK:  43       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK:  47       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK:  49       PC:   5 TOS: 105        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  52       PC:   6 TOS: 105        TOS1: 105       SP:   3         lit 1
+  DEBUG:  TICK:  56       PC:   7 TOS:   1        TOS1: 105       SP:   4         store None
+  DEBUG:  TICK:  63       PC:   8 TOS: 105        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK:  67       PC:   9 TOS:   0        TOS1: 105       SP:   3         sub None
+  DEBUG:  TICK:  73       PC:  10 TOS: 105        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK:  75       PC:  11 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK:  77       PC:  12 TOS:  -1        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK:  83       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK:  83       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK:  87       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK:  89       PC:   5 TOS: 114        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  92       PC:   6 TOS: 114        TOS1: 114       SP:   3         lit 1
+  DEBUG:  TICK:  96       PC:   7 TOS:   1        TOS1: 114       SP:   4         store None
+  DEBUG:  TICK: 103       PC:   8 TOS: 114        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK: 107       PC:   9 TOS:   0        TOS1: 114       SP:   3         sub None
+  DEBUG:  TICK: 113       PC:  10 TOS: 114        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 115       PC:  11 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 117       PC:  12 TOS:  -1        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK: 123       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK: 123       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK: 127       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK: 129       PC:   5 TOS: 105        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 132       PC:   6 TOS: 105        TOS1: 105       SP:   3         lit 1
+  DEBUG:  TICK: 136       PC:   7 TOS:   1        TOS1: 105       SP:   4         store None
+  DEBUG:  TICK: 143       PC:   8 TOS: 105        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK: 147       PC:   9 TOS:   0        TOS1: 105       SP:   3         sub None
+  DEBUG:  TICK: 153       PC:  10 TOS: 105        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 155       PC:  11 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 157       PC:  12 TOS:  -1        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK: 163       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK: 163       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK: 167       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK: 169       PC:   5 TOS: 108        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 172       PC:   6 TOS: 108        TOS1: 108       SP:   3         lit 1
+  DEBUG:  TICK: 176       PC:   7 TOS:   1        TOS1: 108       SP:   4         store None
+  DEBUG:  TICK: 183       PC:   8 TOS: 108        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK: 187       PC:   9 TOS:   0        TOS1: 108       SP:   3         sub None
+  DEBUG:  TICK: 193       PC:  10 TOS: 108        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 195       PC:  11 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 197       PC:  12 TOS:  -1        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK: 203       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK: 203       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK: 207       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK: 209       PC:   5 TOS: 108        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 212       PC:   6 TOS: 108        TOS1: 108       SP:   3         lit 1
+  DEBUG:  TICK: 216       PC:   7 TOS:   1        TOS1: 108       SP:   4         store None
+  DEBUG:  TICK: 223       PC:   8 TOS: 108        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK: 227       PC:   9 TOS:   0        TOS1: 108       SP:   3         sub None
+  DEBUG:  TICK: 233       PC:  10 TOS: 108        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 235       PC:  11 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 237       PC:  12 TOS:  -1        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK: 243       PC:   2 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK: 243       PC:   3 TOS:   0        TOS1:   0       SP:   1         lit 2
+  DEBUG:  TICK: 247       PC:   4 TOS:   2        TOS1:   0       SP:   2         load None
+  DEBUG:  TICK: 249       PC:   5 TOS:   0        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 252       PC:   6 TOS:   0        TOS1:   0       SP:   3         lit 1
+  DEBUG:  TICK: 256       PC:   7 TOS:   1        TOS1:   0       SP:   4         store None
+  DEBUG:  TICK: 263       PC:   8 TOS:   0        TOS1:   0       SP:   2         lit 0
+  DEBUG:  TICK: 267       PC:   9 TOS:   0        TOS1:   0       SP:   3         sub None
+  DEBUG:  TICK: 273       PC:  10 TOS:   0        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 275       PC:  11 TOS:  -1        TOS1:   0       SP:   2         invert None
+  DEBUG:  TICK: 277       PC:  12 TOS:   0        TOS1:   0       SP:   2         jnz 2
+  DEBUG:  TICK: 283       PC:  13 TOS:   0        TOS1:   0       SP:   1         ret None
+  DEBUG:  TICK: 285       PC:  15 TOS:   0        TOS1:   0       SP:   1         halt None
+  INFO:Program has ended with halt
+  INFO:output_buffer: 'kirill\x00'
+out_code: |
+  {
+	"data": [
+		0,
+		0,
+		0
+	],
+	"code": [
+		{"opcode": "jmp", "arg": 14},
+ 		{"opcode": "nop", "arg": "None"},
+ 		{"opcode": "nop", "arg": "None"},
+ 		{"opcode": "lit", "arg": 2},
+ 		{"opcode": "load", "arg": "None"},
+ 		{"opcode": "dup", "arg": "None"},
+ 		{"opcode": "lit", "arg": 1},
+ 		{"opcode": "store", "arg": "None"},
+ 		{"opcode": "lit", "arg": 0},
+ 		{"opcode": "sub", "arg": "None"},
+ 		{"opcode": "invert", "arg": "None"},
+ 		{"opcode": "invert", "arg": "None"},
+ 		{"opcode": "jnz", "arg": 2},
+ 		{"opcode": "ret", "arg": "None"},
+ 		{"opcode": "call", "arg": 1},
+ 		{"opcode": "halt", "arg": "None"}
+	]
+  }

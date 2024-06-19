@@ -1,0 +1,188 @@
+in_source: |
+  : say-hello  ."Hello World!" ;
+  say-hello
+in_stdin: |
+  Doesn't matter
+out_stdout: |
+  Hello World!
+  instr_counter: 137 ticks: 573
+out_log: |
+  DEBUG:  TICK:   0       PC:   0 TOS:   0        TOS1:   0       SP:   1         jmp 15
+  DEBUG:  TICK:   1       PC:  15 TOS:   0        TOS1:   0       SP:   1         call 1
+  DEBUG:  TICK:   3       PC:   1 TOS:   0        TOS1:   0       SP:   1         nop None
+  DEBUG:  TICK:   3       PC:   2 TOS:   0        TOS1:   0       SP:   1         lit 3
+  DEBUG:  TICK:   7       PC:   3 TOS:   3        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  10       PC:   4 TOS:   3        TOS1:   3       SP:   3         load None
+  DEBUG:  TICK:  12       PC:   5 TOS:  72        TOS1:   3       SP:   3         lit 1
+  DEBUG:  TICK:  16       PC:   6 TOS:   1        TOS1:  72       SP:   4         store None
+  DEBUG:  TICK:  23       PC:   7 TOS:   3        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK:  27       PC:   8 TOS:   1        TOS1:   3       SP:   3         add None
+  DEBUG:  TICK:  33       PC:   9 TOS:   4        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  36       PC:  10 TOS:   4        TOS1:   4       SP:   3         lit 15
+  DEBUG:  TICK:  40       PC:  11 TOS:  15        TOS1:   4       SP:   4         sub None
+  DEBUG:  TICK:  46       PC:  12 TOS: -11        TOS1:   4       SP:   3         is_neg None
+  DEBUG:  TICK:  48       PC:  13 TOS:  -1        TOS1:   4       SP:   3         jnz 3
+  DEBUG:  TICK:  54       PC:   3 TOS:   4        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  57       PC:   4 TOS:   4        TOS1:   4       SP:   3         load None
+  DEBUG:  TICK:  59       PC:   5 TOS: 101        TOS1:   4       SP:   3         lit 1
+  DEBUG:  TICK:  63       PC:   6 TOS:   1        TOS1: 101       SP:   4         store None
+  DEBUG:  TICK:  70       PC:   7 TOS:   4        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK:  74       PC:   8 TOS:   1        TOS1:   4       SP:   3         add None
+  DEBUG:  TICK:  80       PC:   9 TOS:   5        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK:  83       PC:  10 TOS:   5        TOS1:   5       SP:   3         lit 15
+  DEBUG:  TICK:  87       PC:  11 TOS:  15        TOS1:   5       SP:   4         sub None
+  DEBUG:  TICK:  93       PC:  12 TOS: -10        TOS1:   5       SP:   3         is_neg None
+  DEBUG:  TICK:  95       PC:  13 TOS:  -1        TOS1:   5       SP:   3         jnz 3
+  DEBUG:  TICK: 101       PC:   3 TOS:   5        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 104       PC:   4 TOS:   5        TOS1:   5       SP:   3         load None
+  DEBUG:  TICK: 106       PC:   5 TOS: 108        TOS1:   5       SP:   3         lit 1
+  DEBUG:  TICK: 110       PC:   6 TOS:   1        TOS1: 108       SP:   4         store None
+  DEBUG:  TICK: 117       PC:   7 TOS:   5        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 121       PC:   8 TOS:   1        TOS1:   5       SP:   3         add None
+  DEBUG:  TICK: 127       PC:   9 TOS:   6        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 130       PC:  10 TOS:   6        TOS1:   6       SP:   3         lit 15
+  DEBUG:  TICK: 134       PC:  11 TOS:  15        TOS1:   6       SP:   4         sub None
+  DEBUG:  TICK: 140       PC:  12 TOS:  -9        TOS1:   6       SP:   3         is_neg None
+  DEBUG:  TICK: 142       PC:  13 TOS:  -1        TOS1:   6       SP:   3         jnz 3
+  DEBUG:  TICK: 148       PC:   3 TOS:   6        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 151       PC:   4 TOS:   6        TOS1:   6       SP:   3         load None
+  DEBUG:  TICK: 153       PC:   5 TOS: 108        TOS1:   6       SP:   3         lit 1
+  DEBUG:  TICK: 157       PC:   6 TOS:   1        TOS1: 108       SP:   4         store None
+  DEBUG:  TICK: 164       PC:   7 TOS:   6        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 168       PC:   8 TOS:   1        TOS1:   6       SP:   3         add None
+  DEBUG:  TICK: 174       PC:   9 TOS:   7        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 177       PC:  10 TOS:   7        TOS1:   7       SP:   3         lit 15
+  DEBUG:  TICK: 181       PC:  11 TOS:  15        TOS1:   7       SP:   4         sub None
+  DEBUG:  TICK: 187       PC:  12 TOS:  -8        TOS1:   7       SP:   3         is_neg None
+  DEBUG:  TICK: 189       PC:  13 TOS:  -1        TOS1:   7       SP:   3         jnz 3
+  DEBUG:  TICK: 195       PC:   3 TOS:   7        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 198       PC:   4 TOS:   7        TOS1:   7       SP:   3         load None
+  DEBUG:  TICK: 200       PC:   5 TOS: 111        TOS1:   7       SP:   3         lit 1
+  DEBUG:  TICK: 204       PC:   6 TOS:   1        TOS1: 111       SP:   4         store None
+  DEBUG:  TICK: 211       PC:   7 TOS:   7        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 215       PC:   8 TOS:   1        TOS1:   7       SP:   3         add None
+  DEBUG:  TICK: 221       PC:   9 TOS:   8        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 224       PC:  10 TOS:   8        TOS1:   8       SP:   3         lit 15
+  DEBUG:  TICK: 228       PC:  11 TOS:  15        TOS1:   8       SP:   4         sub None
+  DEBUG:  TICK: 234       PC:  12 TOS:  -7        TOS1:   8       SP:   3         is_neg None
+  DEBUG:  TICK: 236       PC:  13 TOS:  -1        TOS1:   8       SP:   3         jnz 3
+  DEBUG:  TICK: 242       PC:   3 TOS:   8        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 245       PC:   4 TOS:   8        TOS1:   8       SP:   3         load None
+  DEBUG:  TICK: 247       PC:   5 TOS:  32        TOS1:   8       SP:   3         lit 1
+  DEBUG:  TICK: 251       PC:   6 TOS:   1        TOS1:  32       SP:   4         store None
+  DEBUG:  TICK: 258       PC:   7 TOS:   8        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 262       PC:   8 TOS:   1        TOS1:   8       SP:   3         add None
+  DEBUG:  TICK: 268       PC:   9 TOS:   9        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 271       PC:  10 TOS:   9        TOS1:   9       SP:   3         lit 15
+  DEBUG:  TICK: 275       PC:  11 TOS:  15        TOS1:   9       SP:   4         sub None
+  DEBUG:  TICK: 281       PC:  12 TOS:  -6        TOS1:   9       SP:   3         is_neg None
+  DEBUG:  TICK: 283       PC:  13 TOS:  -1        TOS1:   9       SP:   3         jnz 3
+  DEBUG:  TICK: 289       PC:   3 TOS:   9        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 292       PC:   4 TOS:   9        TOS1:   9       SP:   3         load None
+  DEBUG:  TICK: 294       PC:   5 TOS:  87        TOS1:   9       SP:   3         lit 1
+  DEBUG:  TICK: 298       PC:   6 TOS:   1        TOS1:  87       SP:   4         store None
+  DEBUG:  TICK: 305       PC:   7 TOS:   9        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 309       PC:   8 TOS:   1        TOS1:   9       SP:   3         add None
+  DEBUG:  TICK: 315       PC:   9 TOS:  10        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 318       PC:  10 TOS:  10        TOS1:  10       SP:   3         lit 15
+  DEBUG:  TICK: 322       PC:  11 TOS:  15        TOS1:  10       SP:   4         sub None
+  DEBUG:  TICK: 328       PC:  12 TOS:  -5        TOS1:  10       SP:   3         is_neg None
+  DEBUG:  TICK: 330       PC:  13 TOS:  -1        TOS1:  10       SP:   3         jnz 3
+  DEBUG:  TICK: 336       PC:   3 TOS:  10        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 339       PC:   4 TOS:  10        TOS1:  10       SP:   3         load None
+  DEBUG:  TICK: 341       PC:   5 TOS: 111        TOS1:  10       SP:   3         lit 1
+  DEBUG:  TICK: 345       PC:   6 TOS:   1        TOS1: 111       SP:   4         store None
+  DEBUG:  TICK: 352       PC:   7 TOS:  10        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 356       PC:   8 TOS:   1        TOS1:  10       SP:   3         add None
+  DEBUG:  TICK: 362       PC:   9 TOS:  11        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 365       PC:  10 TOS:  11        TOS1:  11       SP:   3         lit 15
+  DEBUG:  TICK: 369       PC:  11 TOS:  15        TOS1:  11       SP:   4         sub None
+  DEBUG:  TICK: 375       PC:  12 TOS:  -4        TOS1:  11       SP:   3         is_neg None
+  DEBUG:  TICK: 377       PC:  13 TOS:  -1        TOS1:  11       SP:   3         jnz 3
+  DEBUG:  TICK: 383       PC:   3 TOS:  11        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 386       PC:   4 TOS:  11        TOS1:  11       SP:   3         load None
+  DEBUG:  TICK: 388       PC:   5 TOS: 114        TOS1:  11       SP:   3         lit 1
+  DEBUG:  TICK: 392       PC:   6 TOS:   1        TOS1: 114       SP:   4         store None
+  DEBUG:  TICK: 399       PC:   7 TOS:  11        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 403       PC:   8 TOS:   1        TOS1:  11       SP:   3         add None
+  DEBUG:  TICK: 409       PC:   9 TOS:  12        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 412       PC:  10 TOS:  12        TOS1:  12       SP:   3         lit 15
+  DEBUG:  TICK: 416       PC:  11 TOS:  15        TOS1:  12       SP:   4         sub None
+  DEBUG:  TICK: 422       PC:  12 TOS:  -3        TOS1:  12       SP:   3         is_neg None
+  DEBUG:  TICK: 424       PC:  13 TOS:  -1        TOS1:  12       SP:   3         jnz 3
+  DEBUG:  TICK: 430       PC:   3 TOS:  12        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 433       PC:   4 TOS:  12        TOS1:  12       SP:   3         load None
+  DEBUG:  TICK: 435       PC:   5 TOS: 108        TOS1:  12       SP:   3         lit 1
+  DEBUG:  TICK: 439       PC:   6 TOS:   1        TOS1: 108       SP:   4         store None
+  DEBUG:  TICK: 446       PC:   7 TOS:  12        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 450       PC:   8 TOS:   1        TOS1:  12       SP:   3         add None
+  DEBUG:  TICK: 456       PC:   9 TOS:  13        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 459       PC:  10 TOS:  13        TOS1:  13       SP:   3         lit 15
+  DEBUG:  TICK: 463       PC:  11 TOS:  15        TOS1:  13       SP:   4         sub None
+  DEBUG:  TICK: 469       PC:  12 TOS:  -2        TOS1:  13       SP:   3         is_neg None
+  DEBUG:  TICK: 471       PC:  13 TOS:  -1        TOS1:  13       SP:   3         jnz 3
+  DEBUG:  TICK: 477       PC:   3 TOS:  13        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 480       PC:   4 TOS:  13        TOS1:  13       SP:   3         load None
+  DEBUG:  TICK: 482       PC:   5 TOS: 100        TOS1:  13       SP:   3         lit 1
+  DEBUG:  TICK: 486       PC:   6 TOS:   1        TOS1: 100       SP:   4         store None
+  DEBUG:  TICK: 493       PC:   7 TOS:  13        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 497       PC:   8 TOS:   1        TOS1:  13       SP:   3         add None
+  DEBUG:  TICK: 503       PC:   9 TOS:  14        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 506       PC:  10 TOS:  14        TOS1:  14       SP:   3         lit 15
+  DEBUG:  TICK: 510       PC:  11 TOS:  15        TOS1:  14       SP:   4         sub None
+  DEBUG:  TICK: 516       PC:  12 TOS:  -1        TOS1:  14       SP:   3         is_neg None
+  DEBUG:  TICK: 518       PC:  13 TOS:  -1        TOS1:  14       SP:   3         jnz 3
+  DEBUG:  TICK: 524       PC:   3 TOS:  14        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 527       PC:   4 TOS:  14        TOS1:  14       SP:   3         load None
+  DEBUG:  TICK: 529       PC:   5 TOS:  33        TOS1:  14       SP:   3         lit 1
+  DEBUG:  TICK: 533       PC:   6 TOS:   1        TOS1:  33       SP:   4         store None
+  DEBUG:  TICK: 540       PC:   7 TOS:  14        TOS1:   0       SP:   2         lit 1
+  DEBUG:  TICK: 544       PC:   8 TOS:   1        TOS1:  14       SP:   3         add None
+  DEBUG:  TICK: 550       PC:   9 TOS:  15        TOS1:   0       SP:   2         dup None
+  DEBUG:  TICK: 553       PC:  10 TOS:  15        TOS1:  15       SP:   3         lit 15
+  DEBUG:  TICK: 557       PC:  11 TOS:  15        TOS1:  15       SP:   4         sub None
+  DEBUG:  TICK: 563       PC:  12 TOS:   0        TOS1:  15       SP:   3         is_neg None
+  DEBUG:  TICK: 565       PC:  13 TOS:   0        TOS1:  15       SP:   3         jnz 3
+  DEBUG:  TICK: 571       PC:  14 TOS:  15        TOS1:   0       SP:   2         ret None
+  DEBUG:  TICK: 573       PC:  16 TOS:  15        TOS1:   0       SP:   2         halt None
+  INFO:Program has ended with halt
+  INFO:output_buffer: 'Hello World!'
+out_code: |
+  {
+	"data": [
+		0,
+		0,
+		0,
+		72,
+		101,
+		108,
+		108,
+		111,
+		32,
+		87,
+		111,
+		114,
+		108,
+		100,
+		33
+	],
+	"code": [
+		{"opcode": "jmp", "arg": 15},
+ 		{"opcode": "nop", "arg": "None"},
+ 		{"opcode": "lit", "arg": 3},
+ 		{"opcode": "dup", "arg": "None"},
+ 		{"opcode": "load", "arg": "None"},
+ 		{"opcode": "lit", "arg": 1},
+ 		{"opcode": "store", "arg": "None"},
+ 		{"opcode": "lit", "arg": 1},
+ 		{"opcode": "add", "arg": "None"},
+ 		{"opcode": "dup", "arg": "None"},
+ 		{"opcode": "lit", "arg": 15},
+ 		{"opcode": "sub", "arg": "None"},
+ 		{"opcode": "is_neg", "arg": "None"},
+ 		{"opcode": "jnz", "arg": 3},
+ 		{"opcode": "ret", "arg": "None"},
+ 		{"opcode": "call", "arg": 1},
+ 		{"opcode": "halt", "arg": "None"}
+	]
+  }
