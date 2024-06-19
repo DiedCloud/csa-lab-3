@@ -5,6 +5,7 @@ from isa import Opcode, read_data_and_code, Instruction
 from data_path import DataPath
 from signals import Signal
 
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 class ControlUnit:
     program = None

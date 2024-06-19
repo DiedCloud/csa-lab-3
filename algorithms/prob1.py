@@ -24,3 +24,4 @@ def classic_without_mod(limit):
 if __name__ == "__main__":
     lim = 1000
     assert classic(lim) == classic_without_mod(lim)
+    print(classic(lim))

@@ -217,6 +217,13 @@ def translate(text):
         elif terms[term_num] in variables:
             # обращение к переменной - положить ассоциированный адрес на вершину стека
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=variables[terms[term_num]])])
+        elif terms[term_num] == "+!":
+            terms_to_instruction_lists.append([
+                Instruction(Opcode.LOAD),
+                Instruction(Opcode.ADD),
+                Instruction(Opcode.LIT, arg=variables[terms[term_num-1]]), # адрес переменной
+                Instruction(Opcode.STORE)
+            ])
 
         elif terms[term_num] == ":":  # если пришли к определению функции, то её надо перепрыгнуть
             terms_to_instruction_lists.append([None])

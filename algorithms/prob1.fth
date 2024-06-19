@@ -10,7 +10,6 @@ variable number
 
 
 : prob1 ( limit -- sum )
-    1 -                         / уменьшаем limit на 1, т.к без этого число 1000, которое делится на 5, будет учтено, а не должно
     begin
         mod3 @ 0 =
         mod5 @ 0 =
@@ -33,7 +32,8 @@ variable number
 
         1 number +!             / следующее число
 
-    number @ > until            / на вершине стека должен остаться limit
+    dup                         / limit должен сохранятся, поэтому дублируем
+    number @ = until            / на вершине стека должен остаться limit
     total @
 ;
 
