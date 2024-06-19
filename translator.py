@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import sys
 
-from isa import Opcode, Instruction, write_data_and_code
+from isa import Instruction, Opcode, write_data_and_code
 from machine_hw import DataPath
 
 
@@ -62,9 +64,9 @@ def split_with_saving_string_literals(text: str):
     """Разбивает на токены, причем ." " тоже считается токеном."""
     string_literals = []
     text_prep = [text]
-    while isinstance(text_prep[-1], str) and text_prep[-1].find(".\""):
-        left = text_prep[-1].find(".\"")
-        right = text_prep[-1].find("\"", left+2)
+    while isinstance(text_prep[-1], str) and text_prep[-1].find('."'):
+        left = text_prep[-1].find('."')
+        right = text_prep[-1].find('"', left+2)
         if left != -1 and right != -1:
             string_literals.append(text_prep[-1][left:right+1])
             raw = text_prep.pop()
@@ -91,15 +93,15 @@ def remove_comments(text: str):
     skip = False
 
     for char in text:
-        if char == '/':
+        if char == "/":
             skip = True
-        elif char == '\n':
+        elif char == "\n":
             skip = False
             result.append(char)
         if not skip:
             result.append(char)
 
-    return ''.join(result)
+    return "".join(result)
 
 
 def text2terms(text) -> list[str]:
@@ -113,8 +115,7 @@ def text2terms(text) -> list[str]:
     text = remove_comments(text)
     terms = split_with_saving_string_literals(text)
     check_balance_in_terms(terms)
-    terms = remove_brackets(terms)
-    return terms
+    return remove_brackets(terms)
 
 
 def find_variables(terms: list[str]):
@@ -162,7 +163,7 @@ def find_functions(terms: list[str]):
     return functions
 
 
-def translate(text):
+def translate(text):  # noqa: C901
     terms = text2terms(text)
     variables, last_free_address = find_variables(terms)
     terms = remove_term_var(terms)
@@ -194,7 +195,10 @@ def translate(text):
             jmp_stack.append(len(terms_to_instruction_lists)-1)
         elif terms[term_num] == "then":
             terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
-            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.INV), Instruction(Opcode.JNZ, len(terms_to_instruction_lists))]
+            terms_to_instruction_lists[jmp_stack.pop()] = [
+                Instruction(Opcode.INV),
+                Instruction(Opcode.JNZ, len(terms_to_instruction_lists))
+            ]
 
         elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций
             terms_to_instruction_lists.append(term2instructions(terms[term_num]))
@@ -212,18 +216,21 @@ def translate(text):
 
         elif terms[term_num] == ":":  # если пришли к определению функции, то её надо перепрыгнуть
             terms_to_instruction_lists.append([None])
-            jmp_stack.append(len(terms_to_instruction_lists)-1) # нужно будет поставить JUMP с переходом сразу за функцию
+            # нужно будет поставить JUMP с переходом сразу за функцию
+            jmp_stack.append(len(terms_to_instruction_lists)-1)
         elif terms[term_num] in functions:
             if terms[term_num-1] != ":":
                 terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=func_addr[terms[term_num]])])
             else:
-                func_addr[terms[term_num]] = term_num # записываем номер терма с началом функции (указываем на NOP)
-                terms_to_instruction_lists.append([Instruction(Opcode.NOP)]) # чтобы не ломать адресацию замещаем токен с именем функции на NOP
+                # записываем номер терма с началом функции (указываем на NOP)
+                func_addr[terms[term_num]] = term_num
+                # чтобы не ломать адресацию замещаем токен с именем функции на NOP
+                terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
         elif terms[term_num] == ";":
             terms_to_instruction_lists.append([Instruction(Opcode.RET)])
             terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JMP, len(terms_to_instruction_lists))]
 
-        elif terms[term_num][0:2:] == ".\"" and terms[term_num][-1] == "\"":
+        elif terms[term_num][0:2:] == '."' and terms[term_num][-1] == '"':
             # Записываем строку в память по одному символу на ячейку. Причем храним Unicode коды.
             data += [ord(char) for char in terms[term_num][2:-1:]]
             # Инициализация указателя на ячейку памяти отдельным токеном
@@ -246,7 +253,7 @@ def translate(text):
                 Instruction(Opcode.ISNEG),
                 Instruction(Opcode.JNZ, arg=len(terms_to_instruction_lists))
             ])
-        elif terms[term_num].isdigit() or terms[term_num][0] == '-' and terms[term_num][1::].isdigit():
+        elif terms[term_num].isdigit() or terms[term_num][0] == "-" and terms[term_num][1::].isdigit():
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
         else:
             pass

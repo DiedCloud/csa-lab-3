@@ -1,9 +1,21 @@
+from __future__ import annotations
+
 import logging
 import sys
 
-from isa import Opcode, read_data_and_code, Instruction
 from data_path import DataPath
+from isa import Instruction, Opcode, read_data_and_code
 from signals import Signal
+
+
+class EmptyLeftAluInputError(ValueError):
+    def __init__(self):
+        super().__init__("Nothing chosen on left alu input")
+
+
+class EmptyRightAluInputError(ValueError):
+    def __init__(self):
+        super().__init__("Nothing chosen on right alu input")
 
 
 class ControlUnit:
@@ -239,7 +251,7 @@ class ControlUnit:
                 Opcode.RET: 61,
             }[opcode]
         except KeyError:
-            raise StopIteration()
+            raise StopIteration() from None
 
     def __init__(self, program: list[Instruction], data_path: DataPath):
         self.program: list[Instruction] = program
@@ -261,7 +273,8 @@ class ControlUnit:
         if Signal.PCJumpTypeNext in microcode:
             self.program_counter += 1
         elif Signal.PCJumpTypeJNZ in microcode:
-            self.program_counter = self.program[self.program_counter].arg if self.data_path.is_not_zero() else self.program_counter + 1
+            self.program_counter = self.program[
+                self.program_counter].arg if self.data_path.is_not_zero() else self.program_counter + 1
         elif Signal.PCJumpTypeJump in microcode:
             self.program_counter = self.program[self.program_counter].arg
         elif Signal.PCJumpTypeRET in microcode:
@@ -275,7 +288,7 @@ class ControlUnit:
         elif Signal.MicroProgramCounterZero in microcode:
             self.microprogram_counter = 0
 
-    def decode_and_execute_signals(self, microcode: tuple):
+    def decode_and_execute_signals(self, microcode: tuple):  # noqa: C901
         alu_res = 0
         for signal in microcode:
             match signal:
@@ -284,13 +297,13 @@ class ControlUnit:
                 case Signal.ReadMem:
                     self.data_path.latch_tos(self.data_path.read_memory(self.data_path.tos))
                 case (
-                    Signal.SumALU |
-                    Signal.SubALU |
-                    Signal.AndALU |
-                    Signal.OrALU |
-                    Signal.InvertRightALU |
-                    Signal.ISNEG |
-                    Signal.NegALU
+                Signal.SumALU |
+                Signal.SubALU |
+                Signal.AndALU |
+                Signal.OrALU |
+                Signal.InvertRightALU |
+                Signal.ISNEG |
+                Signal.NegALU
                 ):
                     if Signal.TOSLeft in microcode:
                         alu_left = self.data_path.tos1
@@ -301,7 +314,7 @@ class ControlUnit:
                     elif Signal.ZeroLeft in microcode:
                         alu_left = 0
                     else:
-                        raise ValueError("Nothing chosen on left alu input")
+                        raise EmptyLeftAluInputError()
 
                     if Signal.TOSRight in microcode:
                         alu_right = self.data_path.tos
@@ -310,7 +323,7 @@ class ControlUnit:
                     elif Signal.ZeroRight in microcode:
                         alu_right = 0
                     else:
-                        raise ValueError("Nothing chosen on right alu input")
+                        raise EmptyRightAluInputError()
 
                     alu_res = self.data_path.alu.run(signal, alu_left, alu_right)
                     if Signal.SaveALU in microcode:
@@ -344,7 +357,6 @@ class ControlUnit:
                     self.on_signal_latch_microprogram_counter(microcode)
                 case _:
                     pass
-
 
     def run(self, limit):
         instr_counter = 0

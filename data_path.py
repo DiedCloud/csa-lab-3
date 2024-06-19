@@ -1,10 +1,14 @@
+from __future__ import annotations
+
+from typing import ClassVar
+
 from signals import Signal
 
 
 class ALU:
-    SIGNAL_TO_OPERATION = {
-        Signal.SumALU: lambda a, b: a+b,
-        Signal.SubALU: lambda a, b: a-b,
+    SIGNAL_TO_OPERATION: ClassVar[dict] = {
+        Signal.SumALU: lambda a, b: a + b,
+        Signal.SubALU: lambda a, b: a - b,
         Signal.AndALU: lambda a, b: -int(bool(a) and bool(b)),
         Signal.OrALU: lambda a, b: -int(bool(a) or bool(b)),
         Signal.NegALU: lambda _, b: -b,
@@ -28,8 +32,8 @@ class DataPath:
     output_buffer = None
     alu = ALU()
 
-    WRITE_MEM_IO_MAPPING_INT = 0 # Устройство, выводящее значение ячеек
-    WRITE_MEM_IO_MAPPING_CHAR = 1 # Устройство, выводящее символы
+    WRITE_MEM_IO_MAPPING_INT = 0  # Устройство, выводящее значение ячеек
+    WRITE_MEM_IO_MAPPING_CHAR = 1  # Устройство, выводящее символы
     READ_MEM_IO_MAPPING = 2
 
     def __init__(self, data_memory, input_buffer: list[str]):
@@ -43,7 +47,6 @@ class DataPath:
         self.input_buffer: list[str] = input_buffer
         self.output_buffer: list[str] = []
 
-
     def write_memory(self, data_address: int, value: int):
         self.data_memory[data_address] = value
         if data_address == self.WRITE_MEM_IO_MAPPING_CHAR:
@@ -54,7 +57,7 @@ class DataPath:
     def read_memory(self, data_address: int):
         if data_address == self.READ_MEM_IO_MAPPING:
             if len(self.input_buffer) <= 0:
-                res = 0 # EOF
+                res = 0  # EOF
             else:
                 res = ord(self.input_buffer[0])
                 self.input_buffer = self.input_buffer[1::]

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Signal(str, Enum):
     # Memory
     WriteMem = "WriteMem"
@@ -30,7 +31,7 @@ class Signal(str, Enum):
     # latch
     LatchSP = "LatchSP"
 
-    #Stack
+    # Stack
     WriteFromTOS = "WriteFromTOS"
     TosToTos1 = "TosToTos1"
     ReadToTOS = "ReadToTOS"

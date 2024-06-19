@@ -22,6 +22,8 @@
 - `arg` -- аргумент инструкции (если требуется);
 """
 
+from __future__ import annotations
+
 import json
 from enum import Enum
 
@@ -71,23 +73,24 @@ class Instruction:
 
 def write_data_and_code(filename, data: list[int | str], code: list[Instruction]):
     with open(filename, "w", encoding="utf-8") as file:
-        file.write("{\n\t\"data\":")
+        file.write('\n\t"data":')
         for d in range(len(data)):
-            data[d] = str(data[d]) if isinstance(data[d], int) else "\"" + str(data[d]) + "\""
+            data[d] = str(data[d]) if isinstance(data[d], int) else '"' + str(data[d]) + '"'
         file.write(" [\n\t\t" + ",\n\t\t".join(data) + "\n\t]")
 
-        file.write(",\n\t\"code\":")
+        file.write(',\n\t"code":')
         buf = []
         for instr in code:
-            a = instr.arg if isinstance(instr.arg, int) else "\"" + str(instr.arg) + "\""
+            a = instr.arg if isinstance(instr.arg, int) else '"' + str(instr.arg) + '"'
             buf.append(
                 "\t\t{" +
-                f"\"opcode\": \"{instr.opcode}\","
-                f" \"arg\": {a}" +
+                f'"opcode": "{instr.opcode}",'
+                f' "arg": {a}' +
                 "}")
         file.write(" [\n" + ",\n ".join(buf) + "\n\t]")
 
         file.write("\n}")
+
 
 def read_data_and_code(filename):
     with open(filename, encoding="utf-8") as file:

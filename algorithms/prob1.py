@@ -5,6 +5,7 @@ def classic(limit):
             total += number
     return total
 
+
 def classic_without_mod(limit):
     total = 0
     mod3 = 0

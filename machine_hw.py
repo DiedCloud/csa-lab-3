@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 import logging
 import sys
 
-from isa import Opcode, read_data_and_code, Instruction
 from data_path import DataPath
+from isa import Instruction, Opcode, read_data_and_code
 from signals import Signal
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
+
 
 class ControlUnit:
     program = None
@@ -34,7 +37,8 @@ class ControlUnit:
             raise StopIteration()
 
         if instruction.opcode is Opcode.JNZ:
-            self.program_counter = self.program[self.program_counter].arg if self.data_path.is_not_zero() else self.program_counter + 1
+            self.program_counter = self.program[
+                self.program_counter].arg if self.data_path.is_not_zero() else self.program_counter + 1
             self.tick()
 
             alu_left = -1
@@ -62,7 +66,6 @@ class ControlUnit:
             self.tick()
             return True
 
-
         if instruction.opcode is Opcode.JMP:
             self.program_counter = self.program[self.program_counter].arg
             self.tick()
@@ -71,9 +74,9 @@ class ControlUnit:
         if instruction.opcode is Opcode.CALL:
             self.return_stack_pointer += 1
             # наличие ветвления - особенность модели
-            if len(self.return_stack) > self.return_stack_pointer: # если элемент уже был
+            if len(self.return_stack) > self.return_stack_pointer:  # если элемент уже был
                 self.return_stack[self.return_stack_pointer] = self.program_counter + 1
-            else: # если надо увеличить размер стека
+            else:  # если надо увеличить размер стека
                 self.return_stack.append(self.program_counter + 1)
             self.tick()
 
@@ -91,7 +94,7 @@ class ControlUnit:
 
         return False
 
-    def alu_two_arg_instruction(self, instruction):
+    def alu_two_arg_instruction(self, instruction: Instruction):
         """
         Объединяет alu-specific инструкции с двумя аргументами.
          Не соответствует варианту с микрокодом, ведь в нем нет поддержки прыжков по микро-инструкциям.
@@ -155,28 +158,7 @@ class ControlUnit:
         self.data_path.write_from_tos()
         self.tick()
 
-    def decode_and_execute_instruction(self, instruction: Instruction):
-        if self.decode_and_execute_control_flow_instruction(instruction):
-            return
-
-        if instruction.opcode == Opcode.NOP:
-            pass
-        if instruction.opcode == Opcode.LIT:
-            self.data_path.latch_tos(self.program[self.program_counter].arg)
-            self.tick()
-
-            self.data_path.latch_tos1(self.data_path.stack[self.data_path.stack_pointer])
-            self.tick()
-
-            alu_left = 1
-            alu_right = self.data_path.stack_pointer
-            alu_res = self.data_path.alu.run(Signal.SumALU, alu_left, alu_right)
-            self.data_path.latch_sp(alu_res)
-            self.tick()
-
-            self.data_path.write_from_tos()
-            self.tick()
-
+    def memory_instruction(self, instruction: Instruction):
         if instruction.opcode == Opcode.LOAD:
             self.data_path.latch_tos(self.data_path.read_memory(self.data_path.tos))
             self.tick()
@@ -216,6 +198,7 @@ class ControlUnit:
             self.data_path.latch_sp(alu_res)
             self.tick()
 
+    def stack_instruction(self, instruction: Instruction):
         if instruction.opcode == Opcode.DUP:
             alu_left = +1
             alu_right = self.data_path.stack_pointer
@@ -247,13 +230,39 @@ class ControlUnit:
             self.data_path.write_from_tos()
             self.tick()
 
-        if instruction.opcode in (Opcode.ADD, Opcode.SUB, Opcode.AND, Opcode.OR):
+    def decode_and_execute_instruction(self, instruction: Instruction):  # noqa: C901
+        if self.decode_and_execute_control_flow_instruction(instruction):
+            return
+
+        if instruction.opcode == Opcode.LIT:
+            self.data_path.latch_tos(self.program[self.program_counter].arg)
+            self.tick()
+
+            self.data_path.latch_tos1(self.data_path.stack[self.data_path.stack_pointer])
+            self.tick()
+
+            alu_left = 1
+            alu_right = self.data_path.stack_pointer
+            alu_res = self.data_path.alu.run(Signal.SumALU, alu_left, alu_right)
+            self.data_path.latch_sp(alu_res)
+            self.tick()
+
+            self.data_path.write_from_tos()
+            self.tick()
+
+        elif instruction.opcode in (Opcode.LOAD, Opcode.STORE):
+            self.memory_instruction(instruction)
+
+        elif instruction.opcode in (Opcode.DUP, Opcode.OVER):
+            self.stack_instruction(instruction)
+
+        elif instruction.opcode in (Opcode.ADD, Opcode.SUB, Opcode.AND, Opcode.OR):
             self.alu_two_arg_instruction(instruction)
 
-        if instruction.opcode in (Opcode.INV, Opcode.NEG, Opcode.ISNEG):
+        elif instruction.opcode in (Opcode.INV, Opcode.NEG, Opcode.ISNEG):
             self.alu_one_arg_instruction(instruction)
 
-        if instruction.opcode == Opcode.HALT:
+        elif instruction.opcode == Opcode.HALT:
             raise StopIteration()
 
         self.program_counter += 1
