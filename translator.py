@@ -66,12 +66,12 @@ def split_with_saving_string_literals(text: str):
     text_prep = [text]
     while isinstance(text_prep[-1], str) and text_prep[-1].find('."'):
         left = text_prep[-1].find('."')
-        right = text_prep[-1].find('"', left+2)
+        right = text_prep[-1].find('"', left + 2)
         if left != -1 and right != -1:
-            string_literals.append(text_prep[-1][left:right+1])
+            string_literals.append(text_prep[-1][left : right + 1])
             raw = text_prep.pop()
             text_prep.append(raw[0:left].split())
-            text_prep.append(raw[right+1::])
+            text_prep.append(raw[right + 1 : :])
         else:
             text_prep.append(text_prep.pop().split())
     if isinstance(text_prep[-1], str):
@@ -79,7 +79,7 @@ def split_with_saving_string_literals(text: str):
         text_prep.append(raw.split())
 
     terms = []
-    for i in range(len(text_prep)-1):
+    for i in range(len(text_prep) - 1):
         terms += text_prep[i]
         terms.append(string_literals[i])
     terms += text_prep[-1]
@@ -122,18 +122,17 @@ def find_variables(terms: list[str]):
     """Находим токены, определяющие переменные, и даем им место в памяти"""
     variables: dict[str, int] = dict()
     # Память в модели не ограничивается, поэтому можно выделять память после ячеек предназначенных под порты
-    last_free_address = max(
-        DataPath.READ_MEM_IO_MAPPING,
-        DataPath.WRITE_MEM_IO_MAPPING_INT,
-        DataPath.WRITE_MEM_IO_MAPPING_CHAR) + 1
+    last_free_address = (
+        max(DataPath.READ_MEM_IO_MAPPING, DataPath.WRITE_MEM_IO_MAPPING_INT, DataPath.WRITE_MEM_IO_MAPPING_CHAR) + 1
+    )
 
     # Получается формально ничего не мешает объявить переменную где угодно. Но она, очевидно, глобальная
-    for i in range(len(terms)-3):
+    for i in range(len(terms) - 3):
         if terms[i] == "variable":
-            variables[terms[i+1]] = last_free_address
+            variables[terms[i + 1]] = last_free_address
             last_free_address += 1
-            if terms[i+3] == "allot":
-                last_free_address += int(terms[i+2])
+            if terms[i + 3] == "allot":
+                last_free_address += int(terms[i + 2])
 
     if terms[-2] == "variable":
         variables[terms[-1]] = last_free_address
@@ -145,10 +144,10 @@ def find_variables(terms: list[str]):
 def remove_term_var(terms: list[str]):
     while "variable" in terms:
         i = terms.index("variable")
-        terms = terms[0:i:] + terms[i+2::]
+        terms = terms[0:i:] + terms[i + 2 : :]
     while "allot" in terms:
         i = terms.index("allot")
-        terms = terms[0:i-1:] + terms[i+1::]
+        terms = terms[0 : i - 1 :] + terms[i + 1 : :]
     return terms
 
 
@@ -156,9 +155,9 @@ def find_functions(terms: list[str]):
     """Определяем имена функций"""
     functions: set[str] = set()
 
-    for i in range(len(terms)-1):
+    for i in range(len(terms) - 1):
         if terms[i] == ":":
-            functions.add(terms[i+1])
+            functions.add(terms[i + 1])
 
     return functions
 
@@ -169,7 +168,7 @@ def translate(text):  # noqa: C901
     terms = remove_term_var(terms)
     functions = find_functions(terms)
 
-    data: list[int | str] = [0] * last_free_address # инициализируем выделенную память
+    data: list[int | str] = [0] * last_free_address  # инициализируем выделенную память
     code: list[Instruction] = []
 
     # Транслируем термы в машинный код.
@@ -177,11 +176,10 @@ def translate(text):  # noqa: C901
     jmp_stack: list[int] = []
     func_addr: dict[str, int] = dict()
     for term_num in range(len(terms)):
-
         if terms[term_num] == "begin":
             # оставляем placeholder, который будет заменён в конце цикла
             terms_to_instruction_lists.append([None])
-            jmp_stack.append(len(terms_to_instruction_lists)-1)
+            jmp_stack.append(len(terms_to_instruction_lists) - 1)
         elif terms[term_num] == "until":
             # формируем цикл с началом из jmp_stack
             begin_pc = jmp_stack.pop()
@@ -192,34 +190,36 @@ def translate(text):  # noqa: C901
 
         elif terms[term_num] == "if":
             terms_to_instruction_lists.append([None])
-            jmp_stack.append(len(terms_to_instruction_lists)-1)
+            jmp_stack.append(len(terms_to_instruction_lists) - 1)
         elif terms[term_num] == "then":
             terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
             terms_to_instruction_lists[jmp_stack.pop()] = [
                 Instruction(Opcode.INV),
-                Instruction(Opcode.JNZ, len(terms_to_instruction_lists))
+                Instruction(Opcode.JNZ, len(terms_to_instruction_lists)),
             ]
 
-        elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций
+        elif term2instructions(terms[term_num]) is not None:  # Обработка тривиально отображаемых операций
             terms_to_instruction_lists.append(term2instructions(terms[term_num]))
 
         elif terms[term_num] in variables:
             # обращение к переменной - положить ассоциированный адрес на вершину стека
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=variables[terms[term_num]])])
         elif terms[term_num] == "+!":
-            terms_to_instruction_lists.append([
-                Instruction(Opcode.LOAD),
-                Instruction(Opcode.ADD),
-                Instruction(Opcode.LIT, arg=variables[terms[term_num-1]]), # адрес переменной
-                Instruction(Opcode.STORE)
-            ])
+            terms_to_instruction_lists.append(
+                [
+                    Instruction(Opcode.LOAD),
+                    Instruction(Opcode.ADD),
+                    Instruction(Opcode.LIT, arg=variables[terms[term_num - 1]]),  # адрес переменной
+                    Instruction(Opcode.STORE),
+                ]
+            )
 
         elif terms[term_num] == ":":  # если пришли к определению функции, то её надо перепрыгнуть
             terms_to_instruction_lists.append([None])
             # нужно будет поставить JUMP с переходом сразу за функцию
-            jmp_stack.append(len(terms_to_instruction_lists)-1)
+            jmp_stack.append(len(terms_to_instruction_lists) - 1)
         elif terms[term_num] in functions:
-            if terms[term_num-1] != ":":
+            if terms[term_num - 1] != ":":
                 terms_to_instruction_lists.append([Instruction(Opcode.CALL, arg=func_addr[terms[term_num]])])
             else:
                 # записываем номер терма с началом функции (указываем на NOP)
@@ -235,24 +235,26 @@ def translate(text):  # noqa: C901
             data += [ord(char) for char in terms[term_num][2:-1:]]
             # Инициализация указателя на ячейку памяти отдельным токеном
             # (чтобы при смене номеров токенов в аргументах на адреса инструкций не трогать эту инструкцию)
-            terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=len(data)-len(terms[term_num][2:-1:]))])
+            terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=len(data) - len(terms[term_num][2:-1:]))])
 
             # цикл вывода строки
-            terms_to_instruction_lists.append([
-                Instruction(Opcode.DUP),
-                Instruction(Opcode.LOAD),
-                Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING_CHAR),
-                Instruction(Opcode.STORE),
-
-                Instruction(Opcode.LIT, arg=1),
-                Instruction(Opcode.ADD), # инкремент адреса памяти
-
-                Instruction(Opcode.DUP),
-                Instruction(Opcode.LIT, arg=len(data)),
-                Instruction(Opcode.SUB), # <
-                Instruction(Opcode.ISNEG),
-                Instruction(Opcode.JNZ, arg=len(terms_to_instruction_lists))
-            ])
+            terms_to_instruction_lists.append(
+                [
+                    Instruction(Opcode.DUP),
+                    Instruction(Opcode.LOAD),
+                    Instruction(Opcode.LIT, arg=DataPath.WRITE_MEM_IO_MAPPING_CHAR),
+                    Instruction(Opcode.STORE),
+                    # инкремент адреса памяти
+                    Instruction(Opcode.LIT, arg=1),
+                    Instruction(Opcode.ADD),
+                    # <
+                    Instruction(Opcode.DUP),
+                    Instruction(Opcode.LIT, arg=len(data)),
+                    Instruction(Opcode.SUB),
+                    Instruction(Opcode.ISNEG),
+                    Instruction(Opcode.JNZ, arg=len(terms_to_instruction_lists)),
+                ]
+            )
         elif terms[term_num].isdigit() or terms[term_num][0] == "-" and terms[term_num][1::].isdigit():
             terms_to_instruction_lists.append([Instruction(Opcode.LIT, arg=int(terms[term_num]))])
         else:

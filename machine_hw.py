@@ -37,8 +37,9 @@ class ControlUnit:
             raise StopIteration()
 
         if instruction.opcode is Opcode.JNZ:
-            self.program_counter = self.program[
-                self.program_counter].arg if self.data_path.is_not_zero() else self.program_counter + 1
+            self.program_counter = (
+                self.program[self.program_counter].arg if self.data_path.is_not_zero() else self.program_counter + 1
+            )
             self.tick()
 
             alu_left = -1

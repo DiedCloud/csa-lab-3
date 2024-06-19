@@ -82,11 +82,7 @@ def write_data_and_code(filename, data: list[int | str], code: list[Instruction]
         buf = []
         for instr in code:
             a = instr.arg if isinstance(instr.arg, int) else '"' + str(instr.arg) + '"'
-            buf.append(
-                "\t\t{" +
-                f'"opcode": "{instr.opcode}",'
-                f' "arg": {a}' +
-                "}")
+            buf.append("\t\t{" + f'"opcode": "{instr.opcode}",' f' "arg": {a}' + "}")
         file.write(" [\n" + ",\n ".join(buf) + "\n\t]")
 
         file.write("\n}")
@@ -102,9 +98,6 @@ def read_data_and_code(filename):
 
     program_code = []
     for instr in file["code"]:
-        program_code.append(Instruction(
-            Opcode(instr["opcode"]),
-            instr["arg"] if "arg" in instr else None
-        ))
+        program_code.append(Instruction(Opcode(instr["opcode"]), instr["arg"] if "arg" in instr else None))
 
     return data, program_code
