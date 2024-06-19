@@ -9,7 +9,6 @@ def term2instructions(symbol):
     return {
         "+": [Instruction(Opcode.ADD)],
         "-": [Instruction(Opcode.SUB)],
-        # ";": [Instruction(Opcode.RET)],
         "dup": [Instruction(Opcode.DUP)],
         "over": [Instruction(Opcode.OVER)],
         "key": [Instruction(Opcode.LIT, arg=DataPath.READ_MEM_IO_MAPPING), Instruction(Opcode.LOAD)],
@@ -23,8 +22,6 @@ def term2instructions(symbol):
         "or": [Instruction(Opcode.OR)],
         "and": [Instruction(Opcode.AND)],
         "invert": [Instruction(Opcode.INV)],
-        # "if": [Opcode.JNZ],
-        "+!": [Instruction(Opcode.LOAD), Instruction(Opcode.ADD), Instruction(Opcode.LIT, arg=1), Instruction(Opcode.STORE)], # LIT нужен для повторной загрузки адреса переменной
     }.get(symbol, None)
 
 
@@ -212,7 +209,7 @@ def translate(text):
             jmp_stack.append(len(terms_to_instruction_lists)-1)
         elif terms[term_num] == "then":
             terms_to_instruction_lists.append([Instruction(Opcode.NOP)])
-            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.JNZ, len(terms_to_instruction_lists))]
+            terms_to_instruction_lists[jmp_stack.pop()] = [Instruction(Opcode.INV), Instruction(Opcode.JNZ, len(terms_to_instruction_lists))]
 
         elif term2instructions(terms[term_num]) is not None: # Обработка тривиально отображаемых операций
             terms_to_instruction_lists.append(term2instructions(terms[term_num]))

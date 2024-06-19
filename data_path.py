@@ -5,8 +5,8 @@ class ALU:
     SIGNAL_TO_OPERATION = {
         Signal.SumALU: lambda a, b: a+b,
         Signal.SubALU: lambda a, b: a-b,
-        Signal.AndALU: lambda a, b: a and b,
-        Signal.OrALU: lambda a, b: a or b,
+        Signal.AndALU: lambda a, b: -int(bool(a) and bool(b)),
+        Signal.OrALU: lambda a, b: -int(bool(a) or bool(b)),
         Signal.NegALU: lambda _, b: -b,
         Signal.ISNEG: lambda _, b: -1 if b < 0 else 0,
         Signal.InvertRightALU: lambda _, b: -1 if b == 0 else 0,

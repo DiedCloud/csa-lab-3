@@ -24,7 +24,7 @@ variable str_length
         255 =           / second cond - not big str
         or
 
-        dup             / if we ending input
+        dup invert      / if we ending input
         -1 = if
             over        / we need put i as length
             str_length !
