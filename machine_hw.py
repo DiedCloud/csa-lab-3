@@ -276,7 +276,7 @@ class ControlUnit:
             while True:
                 self.decode_and_execute_instruction(self.program[self.program_counter])
                 logging.debug("%s", self.__repr__())
-
+                instr_counter += 1
                 if instr_counter >= limit:
                     logging.warning("Limit exceeded!")
                     break
@@ -292,9 +292,9 @@ class ControlUnit:
         state_repr = (
             f"TICK: {self._tick:3}\t"
             f"PC: {self.program_counter:3}\t"
-            f"TOS: {self.data_path.tos}\t"
-            f"TOS1: {self.data_path.tos1}\t"
-            f"SP: {self.data_path.stack_pointer}\t"
+            f"TOS: {self.data_path.tos:3}\t"
+            f"TOS1: {self.data_path.tos1:3}\t"
+            f"SP: {self.data_path.stack_pointer:3}\t"
         )
 
         instr = self.program[self.program_counter]
@@ -304,7 +304,7 @@ class ControlUnit:
         if instr.arg is not None:
             instr_repr += f" {instr.arg}"
 
-        return f"{state_repr}\n{instr_repr}"
+        return f"\t{state_repr}\t{instr_repr}"
 
 
 def main(code_file, input_file):
@@ -320,7 +320,7 @@ def main(code_file, input_file):
     output, instr_counter, ticks = control_unit.run(1000)
 
     print("".join(output))
-    print("instr_counter: ", instr_counter, "ticks:", ticks)
+    print("instr_counter:", instr_counter, "ticks:", ticks)
 
 
 if __name__ == "__main__":

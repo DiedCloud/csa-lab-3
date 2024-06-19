@@ -36,12 +36,12 @@ def check_balance_in_terms(terms: list[str]):
     stack = []
     for term in terms:
         if term in ("begin", "if", ":"):
-            assert ":" not in stack, "Sub-functions not allowed"
+            assert term != ":" or ":" not in stack, "Sub-functions not allowed"
             stack.append(term)
         if term in ("until", "then", ";"):
             assert len(stack) >= 1, "Unbalanced pairs."
             t = stack.pop()
-            assert (t, term) in pairs_to_check, "Unbalanced pairs. ({t} - {term})!"
+            assert (t, term) in pairs_to_check, f"Unbalanced pairs. ({t} - {term})!"
     assert len(stack) == 0, "Unbalanced pairs."
 
 
