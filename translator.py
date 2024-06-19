@@ -29,33 +29,18 @@ def check_balance_in_terms(terms: list[str]):
     """Проверяет закрыты ли условные операторы, операторы циклов, определения процедур"""
     # но вообще надо проверять на "правильную скобочную последовательность"
 
-    deep = 0
-    for term in terms:
-        if term == "begin":
-            deep += 1
-        if term == "until":
-            deep -= 1
-        assert deep >= 0, "Unbalanced begin-until!"
-        assert deep <= 1, "Sub-functions not allowed"
-    assert deep == 0, "Unbalanced begin-until!"
+    pairs_to_check = [("begin", "until"), ("if", "then"), (":", ";")]
 
-    deep = 0
+    stack = []
     for term in terms:
-        if term == "if":
-            deep += 1
-        if term == "then":
-            deep -= 1
-        assert deep >= 0, "Unbalanced if-then!"
-    assert deep == 0, "Unbalanced if-then!"
-
-    deep = 0
-    for term in terms:
-        if term == ":":
-            deep += 1
-        if term == ";":
-            deep -= 1
-        assert deep >= 0, "Unbalanced :;!"
-    assert deep == 0, "Unbalanced :;!"
+        if term in ("begin", "if", ":"):
+            assert ":" not in stack, "Sub-functions not allowed"
+            stack.append(term)
+        if term in ("until", "then", ";"):
+            assert len(stack) >= 1, "Unbalanced pairs."
+            t = stack.pop()
+            assert (t, term) in pairs_to_check, "Unbalanced pairs. ({t} - {term})!"
+    assert len(stack) == 0, "Unbalanced pairs."
 
 
 def remove_brackets(terms: list[str]):
