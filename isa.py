@@ -73,17 +73,17 @@ class Instruction:
 
 def write_data_and_code(filename, data: list[int | str], code: list[Instruction]):
     with open(filename, "w", encoding="utf-8") as file:
-        file.write('{\n\t"data":')
+        file.write('{\n        "data":')
         for d in range(len(data)):
             data[d] = str(data[d]) if isinstance(data[d], int) else '"' + str(data[d]) + '"'
-        file.write(" [\n\t\t" + ",\n\t\t".join(data) + "\n\t]")
+        file.write(" [\n                " + ",\n                ".join(data) + "\n        ]")
 
-        file.write(',\n\t"code":')
+        file.write(',\n        "code":')
         buf = []
         for instr in code:
             a = instr.arg if isinstance(instr.arg, int) else '"' + str(instr.arg) + '"'
-            buf.append("\t\t{" + f'"opcode": "{instr.opcode}",' f' "arg": {a}' + "}")
-        file.write(" [\n" + ",\n ".join(buf) + "\n\t]")
+            buf.append("                {" + f'"opcode": "{instr.opcode}",' f' "arg": {a}' + "}")
+        file.write(" [\n" + ",\n".join(buf) + "\n        ]")
 
         file.write("\n}")
 

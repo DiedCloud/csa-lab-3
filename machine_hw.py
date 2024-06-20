@@ -7,7 +7,7 @@ from data_path import DataPath
 from isa import Instruction, Opcode, read_data_and_code
 from signals import Signal
 
-logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
+logging.basicConfig(format="%(levelname)s   %(module)s:%(funcName)s           %(message)s", level=logging.DEBUG)
 
 
 class ControlUnit:

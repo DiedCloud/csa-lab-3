@@ -15,8 +15,8 @@ def test_bar(golden, caplog):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         source = os.path.join(tmpdir, "source.fth")
-        input_stream = os.path.join(tmpdir, "input.txt")  # [ord(i) for i in golden["stdin"].rstrip("\n")]
-        target = os.path.join(tmpdir, "source.json")
+        input_stream = os.path.join(tmpdir, "input.txt")
+        target = os.path.join(tmpdir, "target.json")
 
         # Записываем входные данные в файлы. Данные берутся из теста.
         with open(source, "w", encoding="utf-8") as file:

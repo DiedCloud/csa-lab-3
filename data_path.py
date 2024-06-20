@@ -50,7 +50,8 @@ class DataPath:
     def write_memory(self, data_address: int, value: int):
         self.data_memory[data_address] = value
         if data_address == self.WRITE_MEM_IO_MAPPING_CHAR:
-            self.output_buffer.append(chr(value))
+            if value != 0:
+                self.output_buffer.append(chr(value))
         if data_address == self.WRITE_MEM_IO_MAPPING_INT:
             self.output_buffer.append(str(value))
 
