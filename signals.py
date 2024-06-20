@@ -4,7 +4,6 @@ from enum import Enum
 class Signal(str, Enum):
     # Memory
     WriteMem = "WriteMem"
-    ReadMem = "ReadMem"
 
     # ALU multiplexer latch
     TOSRight = "TOSRight"
@@ -27,15 +26,16 @@ class Signal(str, Enum):
     # TOS multiplexer latch
     SaveALU = "SaveALU"
     SaveLIT = "SaveLIT"
+    ReadMem = "ReadMem"
+    ReadToTOS = "ReadToTOS"
+
+    LatchTOS1 = "ReadToTOS1"
 
     # latch
     LatchSP = "LatchSP"
 
     # Stack
     WriteFromTOS = "WriteFromTOS"
-    TosToTos1 = "TosToTos1"
-    ReadToTOS = "ReadToTOS"
-    ReadToTOS1 = "ReadToTOS1"
 
     # Controlling
     PCJumpTypeJNZ = "PCJumpTypeJNZ"

@@ -31,7 +31,7 @@ class ControlUnit:
         (Signal.PCJumpTypeNext, Signal.LatchPC, Signal.MicroProgramCounterZero, Signal.LatchMPCounter),  # 1
         # LIT
         (Signal.SaveLIT, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 2
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 3
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 3
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -83,7 +83,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 12
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 13
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 13
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -105,7 +105,7 @@ class ControlUnit:
         ),  # 15
         (Signal.WriteFromTOS, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 16
         (
-            Signal.ReadToTOS1,
+            Signal.LatchTOS1,
             Signal.MicroProgramCounterZero,
             Signal.LatchMPCounter,
             Signal.PCJumpTypeNext,
@@ -120,7 +120,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 18
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 19
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 19
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -162,7 +162,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 25
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 26
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 26
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -199,7 +199,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 31
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 32
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 32
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -236,7 +236,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 37
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 38
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 38
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -273,7 +273,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 43
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 44
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 44
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -353,7 +353,7 @@ class ControlUnit:
             Signal.MicroProgramCounterNext,
             Signal.LatchMPCounter,
         ),  # 56
-        (Signal.ReadToTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 57
+        (Signal.LatchTOS1, Signal.MicroProgramCounterNext, Signal.LatchMPCounter),  # 57
         (
             Signal.IncLeft,
             Signal.SPRight,
@@ -479,11 +479,9 @@ class ControlUnit:
                     self.data_path.latch_sp(alu_res)
                 case Signal.WriteFromTOS:
                     self.data_path.write_from_tos()
-                case Signal.TosToTos1:
-                    self.data_path.latch_tos1(self.data_path.tos)
                 case Signal.ReadToTOS:
                     self.data_path.latch_tos(self.data_path.stack[self.data_path.stack_pointer])
-                case Signal.ReadToTOS1:
+                case Signal.LatchTOS1:
                     self.data_path.latch_tos1(self.data_path.stack[self.data_path.stack_pointer])
 
                 case Signal.PushRetStack:
