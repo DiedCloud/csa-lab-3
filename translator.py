@@ -260,7 +260,6 @@ def translate(text):  # noqa: C901
         else:
             pass
 
-    # print(terms_to_instruction_lists)
     for term_num in range(len(terms_to_instruction_lists)):
         code += terms_to_instruction_lists[term_num]
 
