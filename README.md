@@ -308,7 +308,32 @@ poetry run pytest . -v
 
 Пример тестирования:
 
-will be there soon...
+```text
+============================= test session starts ==============================
+platform linux -- Python 3.11.9, pytest-7.4.4, pluggy-1.5.0
+rootdir: /home/runner/work/csa-lab-3/csa-lab-3
+configfile: pyproject.toml
+plugins: golden-0.2.2
+collected 4 items
+
+tests/test_machine_hw.py ....                                            [100%]
+
+============================== 4 passed in 0.83s ===============================
+Name                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------
+algorithms/__init__.py         0      0   100%
+algorithms/prob1.py           24     21    12%   2-6, 10-22, 26-28
+data_path.py                  55      1    98%   56
+isa.py                        55      2    96%   68, 71
+machine_hw.py                233      6    97%   267, 284, 327-330
+machine_mc.py                153    122    20%   13, 18, 376-397, 400-407, 410, 413, 416-425, 428-433, 436-501, 504-527, 530-547, 551-563, 567-570
+signals.py                    35      0   100%
+tests/__init__.py              0      0   100%
+tests/test_machine_hw.py      28      0   100%
+translator.py                164      8    95%   78-79, 138-139, 261, 290-292
+--------------------------------------------------------
+TOTAL                        747    160    79%
+```
 
 ## Общая статистика
 
